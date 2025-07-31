@@ -1,0 +1,7 @@
+{
+    "CLIENT_CAPACITY": 10,
+    "IOCP_WORKER_COUNT": 5,
+    "IP": "127.0.0.1",
+    "OVERLAPPED_COUNT_MAX": 50,
+    "SERVER_PORT": 9090
+}
