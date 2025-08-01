@@ -119,7 +119,9 @@ namespace Network
 	{
 		if (completionKey < _maxClient)
 		{
-			return _clientMap[completionKey]->GetReceiveMessage();
+			Network::MessageData* messageData = new Network::MessageData(completionKey, (char*)_clientMap[completionKey]->GetReceiveMessage());
+
+			return messageData;
 		}
 		else
 		{

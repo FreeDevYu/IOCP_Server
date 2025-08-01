@@ -142,6 +142,7 @@
     <ClInclude Include="BaseClientManager.h" />
     <ClInclude Include="Lock.h" />
     <ClInclude Include="MessageBuilder.h" />
+    <ClInclude Include="MESSAGE_PROTOCOL_generated.h" />
     <ClInclude Include="NetworkBaseServer.h" />
     <ClInclude Include="NetworkConfig.h" />
     <ClInclude Include="NetworkDefine.h" />

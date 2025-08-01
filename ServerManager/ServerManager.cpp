@@ -54,16 +54,16 @@ int ServerManager::WorkProcess()
 		switch (overlapped->OperationType)
 		{
 			case Network::OperationType::OP_RECV:
-				int feedback = _clientManager->AddMessageToClient(completionKey, overlapped->Wsabuf.buf, bytesTransferred);
+				int feedback = _clientManager->AddMessageToClient(completionKey, overlapped->Wsabuf.buf, bytesTransferred);//여기서 메세지버퍼에 복사 일어남.
 
-				void* message = _clientManager->GetReceiveMessageFromClient(completionKey);
+				void* message = _clientManager->GetReceiveMessageFromClient(completionKey);//여기서 버퍼 생성 일어남. 메세지버퍼는 memmove
+
 				while (message != nullptr)
 				{
 					// 메시지 처리 로직을 구현합니다.
-					// 예를 들어, 메시지를 파싱하고 필요한 작업을 수행합니다.
 
+					_messageQueue.push(message);
 					message = _clientManager->GetReceiveMessageFromClient(completionKey);
-					// _messageHandler->HandleMessage(message);
 				}
 
 				_overlappedManager->Push(overlapped);
@@ -230,8 +230,54 @@ int ServerManager::UpdateProcess()
 		else if (quitEventResult == WAIT_TIMEOUT)
 		{
 			// 업데이트 작업을 수행합니다.
+
+			RecvMessageProcess();
 		}
 	}
 
 	return NETWORK_OK;
+}
+
+void ServerManager::RecvMessageProcess()
+{
+	void* message = nullptr;
+
+	do
+	{
+		_messageQueue.try_pop(message);
+		ReadMessage(message);
+
+	} while (message != nullptr);
+}
+
+void ServerManager::ReadMessage(void* message)
+{
+	if (message == nullptr)
+		return;
+
+	Network::MessageData* messageData = (Network::MessageData*)message;
+
+	if (messageData == nullptr)
+		return;
+
+	if (messageData->BodySize == 0)
+		return;
+	if (messageData->CompletionKey < 0)
+		return;
+
+	if (messageData->Header.ContentsType < 0 || messageData->Header.ContentsType > protocol::MESSAGETYPE_MAX)
+	{
+		return;
+	}
+
+	protocol::MESSAGETYPE messageType = (protocol::MESSAGETYPE)messageData->Header.ContentsType;
+
+	_messageDispatchers[messageType].ProtocolFunction(*this, messageData->CompletionKey, messageData->Body);
+
+	//Network::MessageData* messageData = reinterpret_cast<Network::MessageData*>(message);
+	//
+	//if (messageData != nullptr)
+	//{
+	//	messageData->Header.
+	//}
 }

@@ -3,17 +3,29 @@
 #include "Lock.h"
 #include <winsock2.h>
 #include <ws2tcpip.h> 
+#include <functional>
 
 #include "BaseClientManager.h"
 #include "OverlappedManager.h"
 #include "NetworkUser.h"
 #include "NetworkDefine.h"
 
+#include "MESSAGE_PROTOCOL_generated.h"
 
 namespace Network
 {
 	class NetworkBaseServer : public DefaultLock
 	{
+		struct MessageDispatcher
+		{
+			std::function<void(Network::NetworkBaseServer&, DWORD, std::string)> ProtocolFunction;
+			MessageDispatcher()
+			{
+				ProtocolFunction = NULL;
+			}
+		};
+		
+
 	public:
 		NetworkBaseServer();
 		virtual ~NetworkBaseServer() = 0;
@@ -53,6 +65,8 @@ namespace Network
 		Network::BaseClientManager* _clientManager;
 		Network::OverlappedManager* _overlappedManager;
 
+		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
+
 	public:
 		void Initialize(Network::BaseClientManager*  clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName,int overlappedCount, int maxClient);
 		int StartIOCP();
@@ -67,12 +81,10 @@ namespace Network
 		int StartUpdateThread();
 
 	public:
-
 		virtual int	WorkProcess() = 0;
 		virtual int	AcceptProcess() = 0;
 		virtual int	UpdateProcess() = 0;
 	};
-
 
 	static unsigned int WINAPI WorkThreadProcess(void* pThis)
 	{

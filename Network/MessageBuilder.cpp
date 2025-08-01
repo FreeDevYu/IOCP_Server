@@ -37,7 +37,7 @@ namespace Network
 		return NETWORK_OK;
 	}
 
-	int MessageBuilder::MessageCheckAndReturn(char* outBuffer, int bufferSize)
+	int MessageBuilder::MessageCheckAndReturn(char*& outBuffer, int& bufferSize)
 	{
 		int headerSize = sizeof(MessageHeader);
 	
@@ -49,7 +49,7 @@ namespace Network
 		MessageHeader header{ 0,0,0 };
 		std::memcpy(&header, _buffer, sizeof(MessageHeader));
 
-		if(header.BodySize <= 0)
+		if(header.BodySize <= 0 || header.BodySize > NET_DATA_BUFSIZE)
 		{
 			return NETWORK_ERROR; // header캐스팅에 실패하였거나 메시지 크기가 0 이다.
 		}
@@ -60,7 +60,7 @@ namespace Network
 			return NETWORK_ERROR; // 전체 메시지가 아직 도착하지 않음
 		}
 
-		LockOff();
+		LockOn();
 
 		outBuffer = new char[resultSize];
 		bufferSize = resultSize;

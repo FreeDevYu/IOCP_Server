@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "WinSock2.h"
 
 #define NETWORK_OK			  1
 #define NETWORK_ERROR		 -1
@@ -40,11 +41,19 @@ namespace Network
         CLIENT = 4
     };
 
+#pragma pack(push, 1)
     struct MessageHeader
     {
         uint32_t SenderType;
         uint32_t BodySize;
         uint32_t ContentsType;
+
+        MessageHeader()
+        {
+            SenderType = 0;
+            BodySize = 0;
+            ContentsType = 0;
+        }
 
         MessageHeader(uint32_t senderType, uint32_t bodySize, uint32_t contentsType) : SenderType(senderType), BodySize(bodySize), ContentsType(contentsType)
         {
@@ -54,6 +63,8 @@ namespace Network
         {
         }
     };
+#pragma pack(pop)
+
 
     struct CustomOverlapped : OVERLAPPED
     {
@@ -79,6 +90,41 @@ namespace Network
             OperationType = OP_DEFAULT;
 			CompletionKey = 0;
             this->hEvent = NULL;
+        }
+    };
+
+    struct MessageData
+    {
+    public:
+        DWORD CompletionKey;
+        MessageHeader Header;
+        std::string Body;
+        int BodySize;
+
+        MessageData()
+        {
+            CompletionKey = -1;
+            Body = "";
+            BodySize = -1;
+        }
+
+        MessageData(DWORD completionKey, char* messageBuffer)
+        {
+            if (messageBuffer != nullptr)
+            {
+                std::memcpy(&Header, messageBuffer, sizeof(MessageHeader));
+                if (Header.BodySize > 0)
+                {
+                    CompletionKey = completionKey;
+                    BodySize = Header.BodySize;
+                    Body = std::string(messageBuffer + sizeof(MessageHeader), BodySize); // string복사를  MessageData객체와 생명주기 일치시킴 -> 안정성확보
+                    return;
+                }
+            }
+
+            CompletionKey = -1;
+            Body = "";
+            BodySize = -1;
         }
     };
 }
