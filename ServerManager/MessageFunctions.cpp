@@ -56,7 +56,7 @@ namespace Manager
 
 	void ServerManager::REQUEST_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
 	{
-
+		//completionkey를 통해 메세지 생성후 메세지큐에 직접넣기.
 	}
 	void ServerManager::RESPONSE_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
 	{
@@ -70,6 +70,18 @@ namespace Manager
 
 	void ServerManager::REQUEST_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
 	{
+		Manager::ServerManager* serverManager = static_cast<Manager::ServerManager*>(&server);
+		if (serverManager == nullptr)
+			return;
+
+		DWORD completionKey = receiveMessage->CompletionKey;
+		Network::NetworkUser* networkUser = serverManager->GetNetworkUser(completionKey);
+
+		auto finder = serverManager->_playerMap.find(completionKey);
+		if(finder == serverManager->_playerMap.end())
+			return; // 해당 플레이어가 존재하지 않음
+
+		_playerMap[completionKey]->RequestHeartBeat();
 
 	}
 

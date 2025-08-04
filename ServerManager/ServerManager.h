@@ -41,6 +41,9 @@ namespace Manager
 
 		void REQUEST_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-	};
 
+	private:
+		void ProcessHeartBeat();
+
+	};
 }

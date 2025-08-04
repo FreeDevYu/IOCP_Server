@@ -1,4 +1,5 @@
 #include "ServerManager.h"
+#include "ServerManagerDefine.h"
 
 namespace Manager
 {
@@ -211,9 +212,12 @@ namespace Manager
 		// 게임 업데이트 로직을 구현합니다.
 		// 예를 들어, 게임 상태 업데이트, 클라이언트에게 데이터 전송 등을 수행할 수 있습니다.
 
+		
 		DWORD currentTime = 0;
 		DWORD offset = 0;
 		DWORD quitEventResult = 0;
+
+		DWORD hearBeatTime = timeGetTime();
 
 		while (_serverOn)
 		{
@@ -237,6 +241,12 @@ namespace Manager
 				// 업데이트 작업을 수행합니다.
 
 				RecvMessageProcess();
+
+				if(timeGetTime() - hearBeatTime >= HeartBeatInterval)
+				{
+					ProcessHeartBeat();
+					hearBeatTime = timeGetTime();
+				}
 			}
 		}
 

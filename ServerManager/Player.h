@@ -3,7 +3,6 @@
 #include <atomic>
 #include <WinSock2.h>
 
-
 namespace Manager
 {
 	enum ServerStatus
@@ -24,13 +23,21 @@ namespace Manager
 
 	public:
 		void Initialize(const std::string& serverName, const DWORD completionKey);
+		DWORD GetCompletionKey() const;
 
 	private:
 		DWORD _completionKey; // 플레이어의 고유 키
 		ServerStatus _serverStatus; // 서버 상태
 		std::string _serverName; // 서버 이름
-		std::atomic<DWORD> _lastResponseTime; // 마지막 HEARTBEAT 응답 시간
 
+
+		DWORD _lastRequestTime; // 마지막 HEARTBEAT 응답 시간
+		DWORD _lastResponseTime; // 마지막 HEARTBEAT 응답 시간
+
+	public:
+		void RequestHeartBeat();
+		void ResponseHeartBeat();
+		
 	};
 
 

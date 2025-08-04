@@ -24,8 +24,19 @@ namespace Manager
 		_lastResponseTime = GetTickCount(); // 현재 시간으로 초기화
 	}
 
-	//DWORD Player::GetCompletionKey() const
-	//{
-	//	return _completionKey;
-	//}
+	DWORD Player::GetCompletionKey() const
+	{
+		return _completionKey;
+	}
+
+	void Player::RequestHeartBeat()
+	{
+		_lastRequestTime = GetTickCount();;
+	}
+
+	void Player::ResponseHeartBeat()
+	{
+		_lastResponseTime = GetTickCount();;
+	}
+	
 }

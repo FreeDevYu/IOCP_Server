@@ -129,8 +129,10 @@
   <ItemGroup>
     <ClInclude Include="Player.h" />
     <ClInclude Include="ServerManager.h" />
+    <ClInclude Include="ServerManagerDefine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="HearBeat.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageFunctionList.cpp" />
     <ClCompile Include="MessageFunctions.cpp" />

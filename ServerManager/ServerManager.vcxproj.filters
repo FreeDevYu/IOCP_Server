@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClInclude Include="ServerManager.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="ServerManagerDefine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -10,5 +11,13 @@
     <ClCompile Include="MessageFunctions.cpp" />
     <ClCompile Include="MessageFunctionList.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="HearBeat.cpp">
+      <Filter>ServerManagerLogic</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ServerManagerLogic">
+      <UniqueIdentifier>{db3335af-f8d9-4e94-b419-d1f2adc365dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

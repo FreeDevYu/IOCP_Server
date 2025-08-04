@@ -65,34 +65,6 @@ namespace Network
     };
 #pragma pack(pop)
 
-
-    struct CustomOverlapped : OVERLAPPED
-    {
-    public:
-        WSABUF Wsabuf;
-        CHAR Buffer[NET_DATA_BUFSIZE];
-        OperationType OperationType;
-        DWORD CompletionKey;
-
-        CustomOverlapped()
-        {
-            CompletionKey = 0;
-            Wsabuf.len = 0;
-            Wsabuf.buf = Buffer;
-            OperationType = OP_DEFAULT;
-            this->hEvent = NULL;
-        }
-
-        void Clear()
-        {
-            Wsabuf.len = 0;
-            Wsabuf.buf = nullptr;
-            OperationType = OP_DEFAULT;
-			CompletionKey = 0;
-            this->hEvent = NULL;
-        }
-    };
-
     struct MessageData
     {
     public:
@@ -108,7 +80,7 @@ namespace Network
             BodySize = -1;
         }
 
-		//Overlapped에서 메시지 버퍼를 복사하여 MessageData 객체를 생성
+		// MessageBuilder에서 동적할당된 body를 이용하여 MessageData 객체를 생성
         MessageData(DWORD completionKey, char* messageBuffer)
         {
             if (messageBuffer != nullptr)
@@ -134,20 +106,49 @@ namespace Network
             CompletionKey = completionKey;
             BodySize = header.BodySize;
 			Header = header;
-            Body = body;
+
+            std::memcpy(Body, body, BodySize);
         }
 
         int OverlappedSize()
         {
 			return sizeof(MessageHeader) + BodySize;
         }
-
-        void CopyToOverlapped(Network::CustomOverlapped& overlapped)
-        {
-            overlapped.Wsabuf.len = OverlappedSize();
-
-            std::memcpy(overlapped.Wsabuf.buf, &Header, sizeof(MessageHeader));
-            std::memcpy(overlapped.Wsabuf.buf + sizeof(MessageHeader), Body, BodySize);
-		}
     };
+
+    struct CustomOverlapped : OVERLAPPED
+    {
+    public:
+        WSABUF Wsabuf;
+        CHAR Buffer[NET_DATA_BUFSIZE];
+        OperationType OperationType;
+        DWORD CompletionKey;
+
+        CustomOverlapped()
+        {
+            CompletionKey = 0;
+            Wsabuf.len = 0;
+            Wsabuf.buf = Buffer;
+            OperationType = OP_DEFAULT;
+            this->hEvent = NULL;
+        }
+
+        void CopyFromMessageData(Network::MessageData& messageData)
+        {
+            Wsabuf.len = messageData.OverlappedSize();
+
+            std::memcpy(Wsabuf.buf, &messageData.Header, sizeof(MessageHeader));
+            std::memcpy(Wsabuf.buf + sizeof(MessageHeader), messageData.Body, messageData.BodySize);
+        }
+
+        void Clear()
+        {
+            Wsabuf.len = 0;
+            Wsabuf.buf = nullptr;
+            OperationType = OP_DEFAULT;
+            CompletionKey = 0;
+            this->hEvent = NULL;
+        }
+    };
+
 }

@@ -325,7 +325,7 @@ namespace Network
 
 			SOCKET socket = user->GetSocket();
 			Network::CustomOverlapped* overlapped = _overlappedManager->Pop(Network::OperationType::OP_SEND);
-			messageData->CopyToOverlapped(*overlapped);
+			overlapped->CopyFromMessageData(*messageData);
 
 			resultCode = ::WSASend(socket,
 				&(overlapped->Wsabuf),
