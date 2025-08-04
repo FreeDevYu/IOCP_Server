@@ -98,16 +98,17 @@ namespace Network
     public:
         DWORD CompletionKey;
         MessageHeader Header;
-        std::string Body;
+        char* Body;
         int BodySize;
 
         MessageData()
         {
             CompletionKey = -1;
-            Body = "";
+            Body = nullptr;
             BodySize = -1;
         }
 
+		//Overlapped에서 메시지 버퍼를 복사하여 MessageData 객체를 생성
         MessageData(DWORD completionKey, char* messageBuffer)
         {
             if (messageBuffer != nullptr)
@@ -117,14 +118,36 @@ namespace Network
                 {
                     CompletionKey = completionKey;
                     BodySize = Header.BodySize;
-                    Body = std::string(messageBuffer + sizeof(MessageHeader), BodySize); // string복사를  MessageData객체와 생명주기 일치시킴 -> 안정성확보
+                    Body = messageBuffer;
                     return;
                 }
             }
 
             CompletionKey = -1;
-            Body = "";
+            Body = nullptr;
             BodySize = -1;
         }
+
+		//Flatbuffers 메시지 헤더와 바디를 이용하여 MessageData 객체를 생성
+        MessageData(DWORD completionKey, MessageHeader header, char* body)
+        {
+            CompletionKey = completionKey;
+            BodySize = header.BodySize;
+			Header = header;
+            Body = body;
+        }
+
+        int OverlappedSize()
+        {
+			return sizeof(MessageHeader) + BodySize;
+        }
+
+        void CopyToOverlapped(Network::CustomOverlapped& overlapped)
+        {
+            overlapped.Wsabuf.len = OverlappedSize();
+
+            std::memcpy(overlapped.Wsabuf.buf, &Header, sizeof(MessageHeader));
+            std::memcpy(overlapped.Wsabuf.buf + sizeof(MessageHeader), Body, BodySize);
+		}
     };
 }

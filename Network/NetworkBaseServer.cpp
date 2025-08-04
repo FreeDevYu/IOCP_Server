@@ -314,6 +314,44 @@ namespace Network
 		}
 	}
 
+	int NetworkBaseServer::SendMessageToClient(DWORD completionKey, std::shared_ptr<MessageData> messageData)
+	{
+		Network::NetworkUser* user = _clientManager->GetNetworkUser(completionKey);
+		if (user != nullptr)
+		{
+			int resultCode = 0;
+			DWORD flags = 0;
+			DWORD sendSize = messageData->OverlappedSize();
+
+			SOCKET socket = user->GetSocket();
+			Network::CustomOverlapped* overlapped = _overlappedManager->Pop(Network::OperationType::OP_SEND);
+			messageData->CopyToOverlapped(*overlapped);
+
+			resultCode = ::WSASend(socket,
+				&(overlapped->Wsabuf),
+				1,
+				&sendSize,
+				flags,
+				overlapped,
+				NULL);
+
+			if (resultCode == SOCKET_ERROR)
+			{
+				resultCode = ::WSAGetLastError();
+
+				if (resultCode != WSA_IO_PENDING)
+				{
+					return NETWORK_ERROR;
+				}
+
+			}
+
+			return NETWORK_OK;
+		}
+		
+		return NETWORK_ERROR;
+	}
+
 	Network::NetworkUser* NetworkBaseServer::GetNetworkUser(DWORD completionKey)
 	{
 		if (_clientManager == nullptr)

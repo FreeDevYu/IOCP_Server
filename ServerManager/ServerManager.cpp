@@ -59,7 +59,7 @@ namespace Manager
 			{
 				int feedback = _clientManager->AddMessageToClient(completionKey, overlapped->Wsabuf.buf, bytesTransferred);//여기서 메세지버퍼에 복사 일어남.
 
-				void* message = _clientManager->GetReceiveMessageFromClient(completionKey);//여기서 버퍼 생성 일어남. 메세지버퍼는 memmove
+				std::shared_ptr<Network::MessageData> message = _clientManager->GetReceiveMessageFromClient(completionKey);
 
 				while (message != nullptr)
 				{
@@ -245,46 +245,40 @@ namespace Manager
 
 	void ServerManager::RecvMessageProcess()
 	{
-		void* message = nullptr;
+		std::shared_ptr<Network::MessageData> messageData = nullptr;
+		bool feedback = false;
 
 		do
 		{
-			_messageQueue.try_pop(message);
-			ReadMessage(message);
+			feedback = _messageQueue.try_pop(messageData);
+			if (feedback)
+			{
+				ReadMessage(messageData);
+			}
+			
 
-		} while (message != nullptr);
+		} while (feedback);
 	}
 
-	void ServerManager::ReadMessage(void* message)
+	void ServerManager::ReadMessage(std::shared_ptr<Network::MessageData> messageData)
 	{
-		if (message == nullptr)
-			return;
-
-		Network::MessageData* messageData = (Network::MessageData*)message;
-
 		if (messageData == nullptr)
 			return;
 
-		if (messageData->BodySize == 0)
+		if (messageData->BodySize < 1)
 			return;
+
 		if (messageData->CompletionKey < 0)
 			return;
 
-		if (messageData->Header.ContentsType < 0 || messageData->Header.ContentsType > protocol::MESSAGETYPE_MAX)
+		if (messageData->Header.ContentsType < protocol::MESSAGETYPE_MIN || messageData->Header.ContentsType > protocol::MESSAGETYPE_MAX)
 		{
 			return;
 		}
 
 		protocol::MESSAGETYPE messageType = (protocol::MESSAGETYPE)messageData->Header.ContentsType;
 
-		_messageDispatchers[messageType].ProtocolFunction(*this, messageData->CompletionKey, messageData->Body);
-
-		//Network::MessageData* messageData = reinterpret_cast<Network::MessageData*>(message);
-		//
-		//if (messageData != nullptr)
-		//{
-		//	messageData->Header.
-		//}
+		_messageDispatchers[messageType].ProtocolFunction(*this, messageData);
 	}
 
 }

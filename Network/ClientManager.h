@@ -24,7 +24,6 @@ namespace Network
 		std::atomic<int> _currentClientCount; // 현재 클라이언트 수
 		CompletionKeyQueue _completionKeyQueue;
 
-
 	public:
 		void InitializeBase(int maxClient);
 		DWORD PopCompletionKey();
@@ -34,7 +33,7 @@ namespace Network
 		int RemoveClient(DWORD completionKey);
 
 		int AddMessageToClient(DWORD completionKey, void* message, DWORD size);
-		void* GetReceiveMessageFromClient(DWORD completionKey);
+		std::shared_ptr<Network::MessageData> GetReceiveMessageFromClient(DWORD completionKey);
 
 	};
 } 

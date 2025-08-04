@@ -19,7 +19,7 @@ namespace Network
 	{
 		struct MessageDispatcher
 		{
-			std::function<void(Network::NetworkBaseServer&, DWORD, std::string)> ProtocolFunction;
+			std::function<void(Network::NetworkBaseServer&, std::shared_ptr<Network::MessageData>)> ProtocolFunction;
 
 			MessageDispatcher()
 			{
@@ -81,6 +81,7 @@ namespace Network
 		void SetUpdateFrame(DWORD dwFrame);
 		int StartUpdateThread();
 
+		int SendMessageToClient(DWORD completionKey, std::shared_ptr<MessageData> messageData);
 		Network::NetworkUser* GetNetworkUser(DWORD completionKey);
 
 	public:

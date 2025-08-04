@@ -116,11 +116,11 @@ namespace Network
 		}
 	}
 
-	void* ClientManager::GetReceiveMessageFromClient(DWORD completionKey)
+	std::shared_ptr<Network::MessageData> ClientManager::GetReceiveMessageFromClient(DWORD completionKey)
 	{
 		if (completionKey < _maxClient)
 		{
-			Network::MessageData* messageData = new Network::MessageData(completionKey, (char*)_clientMap[completionKey]->GetReceiveMessage());
+			std::shared_ptr<Network::MessageData> messageData = std::make_shared<MessageData>(completionKey, (char*)_clientMap[completionKey]->GetReceiveMessage());
 
 			return messageData;
 		}

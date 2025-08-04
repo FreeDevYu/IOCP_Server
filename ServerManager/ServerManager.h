@@ -22,25 +22,25 @@ namespace Manager
 		int RegistMessageDispatcher() override;
 
 	private:
-		tbb::concurrent_queue<void*> _messageQueue;
+		tbb::concurrent_queue<std::shared_ptr<Network::MessageData>> _messageQueue;
 		void RecvMessageProcess();
-		void ReadMessage(void* message);
+		void ReadMessage(std::shared_ptr<Network::MessageData> messageData);
 
 	private:
 		tbb::concurrent_set<std::string> _serverIpSet;
 		tbb::concurrent_map<DWORD, Manager::Player*> _playerMap;
 
 	private:
-		void REQUEST_CONNECT(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
-		void RESPONSE_CONNECT(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
+		void REQUEST_CONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void RESPONSE_CONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
-		void REQUEST_DISCONNECT(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
-		void RESPONSE_DISCONNECT(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
+		void REQUEST_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void RESPONSE_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
-		void NOTICE_KICK(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
+		void NOTICE_KICK(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
-		void REQUEST_HEARTBEAT(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
-		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, DWORD completionKey, std::string);
+		void REQUEST_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 	};
 
 }
