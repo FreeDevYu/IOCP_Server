@@ -127,10 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Player.h" />
     <ClInclude Include="ServerManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MessageFunctionList.cpp" />
+    <ClCompile Include="MessageFunctions.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="ServerManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

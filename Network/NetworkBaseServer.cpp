@@ -12,7 +12,7 @@ namespace Network
 
 	}
 
-	void NetworkBaseServer::Initialize(Network::BaseClientManager* clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName, int overlappedCount, int maxClient)
+	void NetworkBaseServer::Initialize(Network::ClientManager* clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName, int overlappedCount, int maxClient)
 	{
 		_serverOn = true;
 		_serverPort = serverPort;
@@ -34,7 +34,7 @@ namespace Network
 		_maxClient = maxClient;
 
 		if (clientManager == nullptr)
-			clientManager = new BaseClientManager();
+			clientManager = new ClientManager();
 
 		_clientManager = clientManager;
 		_clientManager->InitializeBase(maxClient);
@@ -313,7 +313,26 @@ namespace Network
 			return NETWORK_OK;
 		}
 	}
+
+	Network::NetworkUser* NetworkBaseServer::GetNetworkUser(DWORD completionKey)
+	{
+		if (_clientManager == nullptr)
+		{
+			return nullptr;
+		}
+		return _clientManager->GetNetworkUser(completionKey);
+
+	}
+
+	int NetworkBaseServer::RegistMessageDispatcher()
+	{
+		// 모든 자식클래스에서 사용할 메세지 디스패처를 등록한다.
+
+		return NETWORK_OK;
+
+	}
 }
+
 
 /*
 

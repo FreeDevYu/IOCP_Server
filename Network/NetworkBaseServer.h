@@ -5,11 +5,12 @@
 #include <ws2tcpip.h> 
 #include <functional>
 
-#include "BaseClientManager.h"
+#include "ClientManager.h"
 #include "OverlappedManager.h"
 #include "NetworkUser.h"
 #include "NetworkDefine.h"
 
+#include "../ThirdParty/flatbuffers/flatbuffers.h"
 #include "MESSAGE_PROTOCOL_generated.h"
 
 namespace Network
@@ -19,6 +20,7 @@ namespace Network
 		struct MessageDispatcher
 		{
 			std::function<void(Network::NetworkBaseServer&, DWORD, std::string)> ProtocolFunction;
+
 			MessageDispatcher()
 			{
 				ProtocolFunction = NULL;
@@ -62,13 +64,12 @@ namespace Network
 		HANDLE _regularScheduleThread;
 		HANDLE _regularScheduleQuitEvent;
 
-		Network::BaseClientManager* _clientManager;
 		Network::OverlappedManager* _overlappedManager;
-
+		Network::ClientManager* _clientManager;
 		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
 
 	public:
-		void Initialize(Network::BaseClientManager*  clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName,int overlappedCount, int maxClient);
+		void Initialize(Network::ClientManager*  clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName,int overlappedCount, int maxClient);
 		int StartIOCP();
 
 		int StartWorkThreads();
@@ -80,7 +81,10 @@ namespace Network
 		void SetUpdateFrame(DWORD dwFrame);
 		int StartUpdateThread();
 
+		Network::NetworkUser* GetNetworkUser(DWORD completionKey);
+
 	public:
+		virtual int RegistMessageDispatcher();
 		virtual int	WorkProcess() = 0;
 		virtual int	AcceptProcess() = 0;
 		virtual int	UpdateProcess() = 0;

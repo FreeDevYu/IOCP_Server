@@ -41,5 +41,7 @@ namespace Network
 
 		void SetLastRequeueTime(DWORD time);
 		DWORD GetLastRequeueTime() const;
+
+		std::string GetIpAddress() const;
 	};
 }

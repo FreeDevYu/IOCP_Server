@@ -9,14 +9,14 @@
 
 namespace Network
 {
-	class BaseClientManager : public DefaultLock
+	class ClientManager : public DefaultLock
 	{
-		typedef tbb::concurrent_unordered_map<DWORD, NetworkUser*> ClientMap;
-		typedef tbb::concurrent_queue<DWORD> CompletionKeyQueue;
+		using ClientMap = tbb::concurrent_unordered_map<DWORD, Network::NetworkUser*>;
+		using CompletionKeyQueue = tbb::concurrent_queue<DWORD>;
 
 	public:
-		BaseClientManager();
-		virtual ~BaseClientManager();
+		ClientManager();
+		virtual ~ClientManager();
 
 	protected:
 		ClientMap _clientMap; // 클라이언트 목록
@@ -28,9 +28,9 @@ namespace Network
 	public:
 		void InitializeBase(int maxClient);
 		DWORD PopCompletionKey();
-		SOCKET GetSocket(DWORD completionKey);
+		Network::NetworkUser* GetNetworkUser(DWORD completionKey);
 
-		int AddClient(DWORD completionKey, NetworkUser* user);
+		int AddClient(DWORD completionKey, Network::NetworkUser* user);
 		int RemoveClient(DWORD completionKey);
 
 		int AddMessageToClient(DWORD completionKey, void* message, DWORD size);

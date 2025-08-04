@@ -12,9 +12,10 @@ int main()
 	
 	auto config = Utility::LoadSettingFiles("servermanager_config.json");
 
-	ServerManager serverManager;
+	Manager::ServerManager serverManager;
 	serverManager.Initialize(
-		new Network::BaseClientManager(),
+		new Network::ClientManager(),
+		new Network::OverlappedManager(),
 		config["SERVER_PORT"].get<int>(),
 		config["IP"].get<std::string>(),
 		config["OVERLAPPED_COUNT_MAX"].get<int>(),

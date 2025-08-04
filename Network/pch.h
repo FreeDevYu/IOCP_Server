@@ -18,6 +18,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "wldap32.lib")
 
+#define NOMINMAX
 #include <windows.h>
 
 #include <mmsystem.h>

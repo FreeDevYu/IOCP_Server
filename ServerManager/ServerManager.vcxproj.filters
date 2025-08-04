@@ -2,9 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="ServerManager.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ServerManager.cpp" />
+    <ClCompile Include="MessageFunctions.cpp" />
+    <ClCompile Include="MessageFunctionList.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
 </Project>

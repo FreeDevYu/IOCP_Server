@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseClientManager.cpp" />
+    <ClCompile Include="ClientManager.cpp" />
     <ClCompile Include="MessageBuilder.cpp" />
     <ClCompile Include="NetworkBaseServer.cpp" />
     <ClCompile Include="NetworkConfig.cpp" />
@@ -139,7 +139,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseClientManager.h" />
+    <ClInclude Include="ClientManager.h" />
     <ClInclude Include="Lock.h" />
     <ClInclude Include="MessageBuilder.h" />
     <ClInclude Include="MESSAGE_PROTOCOL_generated.h" />

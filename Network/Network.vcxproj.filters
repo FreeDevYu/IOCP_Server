@@ -5,7 +5,7 @@
     <ClCompile Include="NetworkBaseServer.cpp" />
     <ClCompile Include="NetworkUser.cpp" />
     <ClCompile Include="MessageBuilder.cpp" />
-    <ClCompile Include="BaseClientManager.cpp" />
+    <ClCompile Include="ClientManager.cpp" />
     <ClCompile Include="NetworkConfig.cpp" />
     <ClCompile Include="OverlappedManager.cpp" />
   </ItemGroup>
@@ -16,7 +16,7 @@
     <ClInclude Include="Lock.h" />
     <ClInclude Include="NetworkUser.h" />
     <ClInclude Include="MessageBuilder.h" />
-    <ClInclude Include="BaseClientManager.h" />
+    <ClInclude Include="ClientManager.h" />
     <ClInclude Include="NetworkConfig.h" />
     <ClInclude Include="OverlappedManager.h" />
     <ClInclude Include="ObjectPool.h" />

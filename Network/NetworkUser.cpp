@@ -134,4 +134,9 @@ namespace Network
 	{
 		return _ioLastRequeueTime.load(std::memory_order_acquire);
 	}
+
+	std::string NetworkUser::GetIpAddress() const 
+	{ 
+		return _ip;
+	}
 }

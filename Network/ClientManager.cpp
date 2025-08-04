@@ -1,17 +1,17 @@
 #pragma once
-#include "BaseClientManager.h"
+#include "ClientManager.h"
 
 namespace Network
 {
-	BaseClientManager::BaseClientManager()
+	ClientManager::ClientManager()
 	{
 	}
 
-	BaseClientManager::~BaseClientManager()
+	ClientManager::~ClientManager()
 	{
 	}
 
-	void BaseClientManager::InitializeBase(int maxClient)
+	void ClientManager::InitializeBase(int maxClient)
 	{
 		_maxClient = maxClient;
 		_clientMap.clear();
@@ -23,7 +23,7 @@ namespace Network
 		}
 	}
 
-	DWORD BaseClientManager::PopCompletionKey()
+	DWORD ClientManager::PopCompletionKey()
 	{
 		if (_currentClientCount.load() >= _maxClient)
 		{
@@ -46,15 +46,15 @@ namespace Network
 		}
 	}
 
-	SOCKET BaseClientManager::GetSocket(DWORD completionKey)
+	Network::NetworkUser* ClientManager::GetNetworkUser(DWORD completionKey)
 	{
 		if (completionKey < _maxClient)
-			return _clientMap[completionKey]->GetSocket();
+			return _clientMap[completionKey];
 		else
-			return INVALID_SOCKET;
+			return nullptr;
 	}
 
-	int BaseClientManager::AddClient(DWORD completionKey, NetworkUser* user)
+	int ClientManager::AddClient(DWORD completionKey, Network::NetworkUser* user)
 	{
 		if (completionKey == NETWORK_ERROR || user == nullptr)
 		{
@@ -65,6 +65,7 @@ namespace Network
 		{
 			return NETWORK_ERROR; // 최대 클라이언트 수 초과
 		}
+
 		if (_clientMap.find(completionKey) != _clientMap.end())
 		{
 			return NETWORK_ERROR; // 이미 존재하는 클라이언트
@@ -77,7 +78,7 @@ namespace Network
 		return NETWORK_OK;
 	}
 
-	int BaseClientManager::RemoveClient(DWORD completionKey)
+	int ClientManager::RemoveClient(DWORD completionKey)
 	{
 		if (completionKey == NETWORK_ERROR)
 		{
@@ -101,7 +102,7 @@ namespace Network
 		return NETWORK_OK;
 	}
 
-	int BaseClientManager::AddMessageToClient(DWORD completionKey, void* message, DWORD size)
+	int ClientManager::AddMessageToClient(DWORD completionKey, void* message, DWORD size)
 	{
 		if (completionKey < _maxClient)
 		{
@@ -115,7 +116,7 @@ namespace Network
 		}
 	}
 
-	void* BaseClientManager::GetReceiveMessageFromClient(DWORD completionKey)
+	void* ClientManager::GetReceiveMessageFromClient(DWORD completionKey)
 	{
 		if (completionKey < _maxClient)
 		{
