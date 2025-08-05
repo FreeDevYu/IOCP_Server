@@ -61,6 +61,8 @@ namespace Manager
 				int feedback = _clientManager->AddMessageToClient(completionKey, overlapped->Wsabuf.buf, bytesTransferred);//여기서 메세지버퍼에 복사 일어남.
 
 				std::shared_ptr<Network::MessageData> message = _clientManager->GetReceiveMessageFromClient(completionKey);
+				overlapped->Clear();
+				_overlappedManager->Push(overlapped);
 
 				while (message != nullptr)
 				{
@@ -70,10 +72,8 @@ namespace Manager
 					message = _clientManager->GetReceiveMessageFromClient(completionKey);
 				}
 
-				_overlappedManager->Push(overlapped);
 				overlapped = _overlappedManager->Pop(Network::OperationType::OP_RECV);
 				Network::NetworkUser* user = _clientManager->GetNetworkUser(completionKey);
-				bytesTransferred = 111; //sizeof(protocol::NetMessageGeneric);
 
 				int nRetCode = ::WSARecv(
 					user->GetSocket(),
@@ -217,7 +217,7 @@ namespace Manager
 		DWORD offset = 0;
 		DWORD quitEventResult = 0;
 
-		DWORD hearBeatTime = timeGetTime();
+		DWORD lastHeartbeatTime = 0;
 
 		while (_serverOn)
 		{
@@ -242,10 +242,14 @@ namespace Manager
 
 				RecvMessageProcess();
 
-				if(timeGetTime() - hearBeatTime >= HeartBeatInterval)
+				if(timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
 				{
 					ProcessHeartBeat();
-					hearBeatTime = timeGetTime();
+					lastHeartbeatTime = timeGetTime();
+				}
+				else
+				{
+					PlayerOnlineCheck(currentTime);
 				}
 			}
 		}

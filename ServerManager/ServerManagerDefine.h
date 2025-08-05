@@ -5,5 +5,32 @@
 
 namespace Manager
 {
-	DWORD HeartBeatInterval = 60;// 60초
+    class ServerManagerDefine
+    {
+    public:
+        static ServerManagerDefine& Instance()
+        {
+            static ServerManagerDefine instance;
+            return instance;
+        }
+
+        DWORD GetHeartBeatInterval() const { return _interval; }
+        DWORD GetHeartBeatTimeout() const { return _timeout; }
+        DWORD GetHeartBeatMaxCount() const { return _maxCount; }
+
+        void SetHeartBeatInterval(DWORD interval) { _interval = interval; }
+        void SetHeartBeatTimeout(DWORD timeout) { _timeout = timeout; }
+        void SetHeartBeatMaxCount(DWORD maxCount) { _maxCount = maxCount; }
+
+    private:
+        // 복사 및 대입 방지
+        ServerManagerDefine() {}
+        ServerManagerDefine(const ServerManagerDefine&) = delete;
+        ServerManagerDefine& operator=(const ServerManagerDefine&) = delete;
+
+    private:
+        DWORD _interval;
+        DWORD _timeout;
+        DWORD _maxCount;
+    };
 }

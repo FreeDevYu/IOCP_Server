@@ -4,7 +4,7 @@
 #include "oneTBB/include/oneapi/tbb/concurrent_queue.h"
 #include "oneTBB/include/oneapi/tbb/concurrent_set.h"
 #include "oneTBB/include/oneapi/tbb/concurrent_map.h"
-
+#include "ServerManagerDefine.h"
 #include "Player.h"
 
 namespace Manager
@@ -43,6 +43,7 @@ namespace Manager
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
 	private:
+		void PlayerOnlineCheck(DWORD currentTime);
 		void ProcessHeartBeat();
 
 	};
