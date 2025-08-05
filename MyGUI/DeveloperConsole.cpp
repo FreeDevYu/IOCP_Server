@@ -10,14 +10,11 @@ namespace MyGUI
     {
     }
 
-    void DeveloperConsole::Initialize(std::string consoleName, float width, float height)
+    void DeveloperConsole::Initialize(std::string consoleName)
     {
         _consoleName = consoleName;
         _currentInputText = "";
 
-        _consoleWidth = width;
-        _consoleHeight = height;
-        // 초기 메시지 추가 (예시)
         _consoleMessages.push_back("Console Initialized");
 		_consoleMessages.push_back("Type your commands below.");
     }
@@ -25,7 +22,8 @@ namespace MyGUI
 
     void DeveloperConsole::Process()
     {
-        ImGui::SetNextWindowSize(ImVec2(_consoleWidth, _consoleHeight), ImGuiCond_Once);
+        auto consoleSize = ImGui::GetIO().DisplaySize;
+        ImGui::SetNextWindowSize(consoleSize, ImGuiCond_Once);
         ImGui::Begin(_consoleName.c_str(), nullptr, ImGuiWindowFlags_NoMove);
        // ImGui::Text("Console Initialized");
 
@@ -72,4 +70,10 @@ namespace MyGUI
 		_consoleMessages.push_back(input);
         // 콜백 부분
     }
+
+    void DeveloperConsole::AddMessage(const std::string& type, const std::string& message)
+    {
+		//추후 타입별로 필터링 가능하도록 수정 필요
+        _consoleMessages.push_back(message);
+	}
 }

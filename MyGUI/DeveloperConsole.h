@@ -18,17 +18,15 @@ namespace MyGUI
         DeveloperConsole();
         ~DeveloperConsole();
 
-        void Initialize(std::string consoleName, float width, float height);
+        void Initialize(std::string consoleName);
         void Process();
         void Reset();
 
         void InputCallback(std::string input);
-
+        void AddMessage(const std::string& type, const std::string& message);
 
     private:
         std::string _consoleName;
-        float _consoleWidth;
-        float _consoleHeight;
 
     private:
 		std::vector<std::string> _consoleMessages; // 콘솔 메시지 저장용 벡터
