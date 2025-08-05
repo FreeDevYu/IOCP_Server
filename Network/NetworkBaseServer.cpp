@@ -90,21 +90,25 @@ namespace Network
 				this,
 				0,
 				(unsigned int*)&dwThreadId);
+
 			if (hThread == NULL)
 			{
-				//sc::writeLogError(sc::string::format("%d Worker thread create error code: %d", dwCPU + 1, GetLastError()));
+				DebugLog(Debug::DEBUG_ERROR, std::format("{} + Worker thread create error code: +{}", dwCPU + 1, GetLastError()));
+
 				return NETWORK_ERROR;
 			}
 			else
 			{
-				//sc::writeLogInfo(sc::string::format("#%1% Worker thread create ok", dwCPU + 1));
 				// The system schedules threads on their preferred processors whenever possible.
 				::SetThreadIdealProcessor(hThread, dwCPU % _cpuCount);
 			}
+
 			// store thread handle
 			_workerThread[dwCPU] = hThread;
 			::CloseHandle(hThread);
 		}
+
+		DebugLog(Debug::DEBUG_LOG, "StartWorkThreads Complete");
 		return NETWORK_OK;
 	}
 
@@ -123,6 +127,8 @@ namespace Network
 		}
 		// Wait until all worker thread exit
 		Sleep(1000);
+
+		DebugLog(Debug::DEBUG_LOG, "StopWorkThreads Complete");
 		return NETWORK_OK;
 	}
 
@@ -143,14 +149,10 @@ namespace Network
 		if (_serverSocket == SOCKET_ERROR)
 		{
 			int errCode = WSAGetLastError();
-			//sc::writeLogError(sc::string::format("StartListenThread WSASocket failed: %1%", sc::net::getLastError(errCode)));
+			DebugLog(Debug::DEBUG_ERROR, std::format("StartListenThread WSASocket failed: {}", errCode));
 			WSACleanup();
 			_serverOn = false;
 			return NETWORK_ERROR;
-		}
-		else
-		{
-			//sc::writeLogInfo(std::string("WSASocket ok"));
 		}
 	
 		// Server 의 ip Address 를 얻는다.
@@ -178,7 +180,7 @@ namespace Network
 		if (setsockopt(_serverSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&val, sizeof(val)) != 0)
 		{
 			int errCode = WSAGetLastError();
-			//sc::writeLogError(sc::string::format("setsockopt error: %1%", sc::net::getLastError(errCode)));
+			DebugLog(Debug::DEBUG_ERROR, std::format("setsockopt error: {}", errCode));
 			closesocket(_serverSocket);
 			WSACleanup();
 			_serverOn = false;
@@ -194,25 +196,21 @@ namespace Network
 		if (retCode == SOCKET_ERROR)
 		{
 			int errCode = WSAGetLastError();
-			//sc::writeLogError(
-			//	sc::string::format(
-			//		"bind error: %1%",
-			//		sc::net::getLastError(errCode)));
+			DebugLog(Debug::DEBUG_ERROR, std::format("bind error: {}", errCode));
+
 			::closesocket(_serverSocket);
 			::WSACleanup();
 			_serverOn = false;
 			return NETWORK_ERROR;
 		}
-		else
-		{
-			//sc::writeLogInfo(sc::string::format("Bind port: %1%", _serverPort));
-		}
+		
 
 		retCode = ::listen(_serverSocket, SOMAXCONN);
 		if (retCode == SOCKET_ERROR)
 		{
 			int errCode = WSAGetLastError();
-			//sc::writeLogError(sc::string::format("listen error: %1%", sc::net::getLastError(errCode)));
+			DebugLog(Debug::DEBUG_ERROR, std::format("listen error: {}", errCode));
+
 			::closesocket(_serverSocket);
 			::WSACleanup();
 			_serverOn = false;
@@ -231,13 +229,13 @@ namespace Network
 
 		if (_acceptThread == NULL)
 		{
-			//sc::writeLogError(sc::string::format("Server accept thread create failed: %d", GetLastError()));
+			DebugLog(Debug::DEBUG_ERROR, "StartListenThread Fail");
 			_serverOn = false;
 			return NETWORK_ERROR;
 		}
 		else
 		{
-			//sc::writeLogInfo(std::string("Server accept thread create ok"));
+			DebugLog(Debug::DEBUG_LOG, "StartListenThread Complete");
 			return NETWORK_OK;
 		}
 	}
@@ -287,7 +285,7 @@ namespace Network
 
 		if (_updateThread == NULL)
 		{
-			//sc::writeLogError(sc::string::format("Server update thread create failed error code: %d", GetLastError()));
+			DebugLog(Debug::DEBUG_ERROR, std::format("Server update thread create failed error code: {}", GetLastError()));
 			_serverOn = false;
 
 			return NETWORK_ERROR;
@@ -310,6 +308,7 @@ namespace Network
 
 			::ResumeThread(_updateThread);
 
+			DebugLog(Debug::DEBUG_LOG, "StartUpdateThread Complete");
 			return NETWORK_OK;
 		}
 	}
@@ -341,6 +340,7 @@ namespace Network
 
 				if (resultCode != WSA_IO_PENDING)
 				{
+					DebugLog(Debug::DEBUG_ERROR, std::format("WSASend error: {}", resultCode));
 					return NETWORK_ERROR;
 				}
 
@@ -349,6 +349,7 @@ namespace Network
 			return NETWORK_OK;
 		}
 		
+		DebugLog(Debug::DEBUG_ERROR, std::format("SendMessageToClient failed: No user found for completionKey: {}", completionKey));
 		return NETWORK_ERROR;
 	}
 
@@ -356,8 +357,10 @@ namespace Network
 	{
 		if (_clientManager == nullptr)
 		{
+			DebugLog(Debug::DEBUG_ERROR, "ClientManager is not initialized.");
 			return nullptr;
 		}
+
 		return _clientManager->GetNetworkUser(completionKey);
 
 	}

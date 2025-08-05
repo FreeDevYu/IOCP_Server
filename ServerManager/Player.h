@@ -26,7 +26,7 @@ namespace Manager
 	public:
 		void Initialize(const std::string& serverName, const DWORD completionKey);
 		DWORD GetCompletionKey() const;
-
+		std::string GetServerName() const;
 	private:
 		DWORD _completionKey; // 플레이어의 고유 키
 		ServerStatus _serverStatus; // 서버 상태

@@ -5,6 +5,9 @@
 
 //#define CONFGINTEST
 
+#define OK			  1
+#define ERROR		 -1
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // 윈도우 메시지 처리 함수
@@ -21,8 +24,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-static MyGUI::DeveloperConsole console;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) 
 {
 #ifdef CONFGINTEST
@@ -32,22 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     auto config = Utility::LoadSettingFiles("servermanager_config.json");
 
     Manager::ServerManager serverManager;
-    serverManager.Initialize(
-        new Network::ClientManager(),
-        new Network::OverlappedManager(),
-        config["SERVER_PORT"].get<int>(),
-        config["IP"].get<std::string>(),
-        config["OVERLAPPED_COUNT_MAX"].get<int>(),
-        config["CLIENT_CAPACITY"].get<int>()
-    );
-
-    serverManager.StartIOCP();
-    serverManager.StartWorkThreads();
-    serverManager.StartListenThread();
-    serverManager.SetUpdateFrame(60); // FPS 설정
-    serverManager.StartUpdateThread();
-
-
+  
     ////////////////////////////////////////////////////////////////////////////////
     
     // 1. 윈도우 클래스 등록
@@ -104,7 +90,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     ImGui_ImplWin32_Init(hwnd);            
     ImGui_ImplOpenGL3_Init("#version 130"); 
 
+    MyGUI::DeveloperConsole console;
 	console.Initialize("Developer Console");
+
+    serverManager.SetDebugLogCallback
+    (
+        [&console](const std::string& type, const std::string& message) {
+            console.AddMessage(type, message);
+		}
+    );
+
+    serverManager.Initialize(
+        new Network::ClientManager(),
+        new Network::OverlappedManager(),
+        config["SERVER_PORT"].get<int>(),
+        config["IP"].get<std::string>(),
+        config["OVERLAPPED_COUNT_MAX"].get<int>(),
+        config["CLIENT_CAPACITY"].get<int>()
+    );
+
+    int feedback = 0;
+    feedback = serverManager.StartIOCP();
+    serverManager.StartWorkThreads();
+    serverManager.StartListenThread();
+    serverManager.SetUpdateFrame(60); // FPS 설정
+    serverManager.StartUpdateThread();
+
+
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -142,36 +154,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 }
 
 
-namespace Debug
-{
-    enum DebugType
-    {
-        DEBUG_LOG,
-        DEBUG_NETWORK,
-        DEBUG_WARNING,
-        DEBUG_ERROR,
-
-        MAX
-    };;
-
-    inline const char* const* EnumNamesDebugType()
-    {
-        static const char* const names[DebugType::MAX + 1] = {
-          "DEBUG_LOG",
-          "DEBUG_NETWORK",
-          "DEBUG_WARNING",
-          "DEBUG_ERROR",
-          "MAX"
-        };
-
-        return names;
-    }
-
-
-    static void LogMessage(DebugType type, const std::string& message)
-    {
-        std::string typeName = EnumNamesDebugType()[type];
-
-        console.AddMessage(typeName, message);
-    }
-}
+// 출력체크
+// 클라이언트테스트 간단하게...

@@ -118,6 +118,7 @@ namespace Manager
 		DWORD bytesTransferred = 0;
 		DWORD flags = 0;
 
+		DebugLog(Debug::DEBUG_LOG, "Accept thread Start...");
 		while (_serverOn)
 		{
 			newAcceptSocket = WSAAccept(_serverSocket, NULL, NULL, NULL, 0);
@@ -141,6 +142,7 @@ namespace Manager
 			completionKey = _clientManager->PopCompletionKey();
 			if (completionKey == NETWORK_ERROR)
 			{
+				DebugLog(Debug::DEBUG_WARNING, "AcceptProcess: No available completion key.");
 				// 최대 클라이언트 수를 초과한 경우 소켓을 닫고 다음 연결을 기다립니다.
 				closesocket(newAcceptSocket);
 				continue;
@@ -152,6 +154,7 @@ namespace Manager
 			if (feedback == NETWORK_ERROR)
 			{
 				// 클라이언트 추가 실패 시 소켓을 닫고 다음 연결을 기다립니다.
+				DebugLog(Debug::DEBUG_ERROR, "AcceptProcess: Failed to add new client.");
 				closesocket(newAcceptSocket);
 				continue;
 			}
@@ -168,6 +171,7 @@ namespace Manager
 			if (!handleReturnCode)
 			{
 				_clientManager->RemoveClient(completionKey);
+				DebugLog(Debug::DEBUG_WARNING, std::format("CreateIoCompletionPort failed for socket {}: {}", newAcceptSocket, GetLastError()));
 				//sc::writeLogError(std::string("CreateIoCompletionPort error"));
 				//CloseClient(dwClient);
 				continue;
@@ -176,11 +180,10 @@ namespace Manager
 			auto overlapped = _overlappedManager->Pop(Network::OperationType::OP_RECV);
 			if (overlapped == nullptr)
 			{
+				DebugLog(Debug::DEBUG_ERROR, "AcceptProcess: Failed to pop overlapped structure.");
 				//_clientManager->RemoveClient(completionKey);
 				continue;
 			}
-
-			bytesTransferred = 111; //sizeof(protocol::NetMessageGeneric);
 
 			int nRetCode = ::WSARecv(
 				newAcceptSocket,
@@ -197,6 +200,7 @@ namespace Manager
 			int nLastErr = 0;
 			if ((nRetCode == SOCKET_ERROR) && ((nLastErr = WSAGetLastError()) != WSA_IO_PENDING))
 			{
+				DebugLog(Debug::DEBUG_WARNING, std::format("WSARecv failed for socket {}: {}", newAcceptSocket, nLastErr));
 				newAcceptUser->DecreasePendingIOCount();
 				//_clientManager->RemoveClient(completionKey); ->job형태로 바꾸기.
 				_overlappedManager->Push(overlapped);
@@ -204,6 +208,7 @@ namespace Manager
 			}
 		}
 
+		DebugLog(Debug::DEBUG_LOG, "Accept thread End.");
 		return NETWORK_OK;
 	}
 
@@ -233,6 +238,7 @@ namespace Manager
 
 			if (quitEventResult == WAIT_OBJECT_0)
 			{
+				DebugLog(Debug::DEBUG_LOG, "Update thread quit event received.");
 				// 업데이트 스레드가 종료 요청을 받았을 때 처리합니다.
 				break;
 			}
@@ -276,17 +282,15 @@ namespace Manager
 
 	void ServerManager::ReadMessage(std::shared_ptr<Network::MessageData> messageData)
 	{
-		if (messageData == nullptr)
+		if (messageData == nullptr || messageData->BodySize < 1 || messageData->CompletionKey < 0)
+		{
+			DebugLog(Debug::DEBUG_ERROR, "ReadMessage: Invalid message data.");
 			return;
-
-		if (messageData->BodySize < 1)
-			return;
-
-		if (messageData->CompletionKey < 0)
-			return;
+		}
 
 		if (messageData->Header.ContentsType < protocol::MESSAGETYPE_MIN || messageData->Header.ContentsType > protocol::MESSAGETYPE_MAX)
 		{
+			DebugLog(Debug::DEBUG_ERROR, "ReadMessage: Invalid message type.");
 			return;
 		}
 
@@ -295,4 +299,23 @@ namespace Manager
 		_messageDispatchers[messageType].ProtocolFunction(*this, messageData);
 	}
 
+	void ServerManager::SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback)
+	{
+		_debugLogCallback = callback;
+	}
+
+	void ServerManager::DebugLog(Debug::DebugType debugtype, const std::string& message)
+	{
+		if (!_debugLogCallback)
+			return;
+
+		if(debugtype < 0 || debugtype > Debug::MAX)
+		{
+			DebugLog(Debug::DEBUG_ERROR, "Debug type is out of range.");
+			return;
+		}
+
+		std::string typeString = Debug::EnumNamesDebugType()[debugtype]; // Ensure debugtype is valid
+		_debugLogCallback(typeString, message);
+	}
 }

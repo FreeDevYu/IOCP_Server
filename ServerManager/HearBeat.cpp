@@ -4,6 +4,7 @@ namespace Manager
 {
 	void ServerManager::PlayerOnlineCheck(DWORD currentTime)
 	{
+		int offlineCheck = 0;
 		int size = _playerMap.size();
 		for (int i = 0;i < size; ++i)
 		{
@@ -17,8 +18,20 @@ namespace Manager
 			if (!player->IsOnline())
 				continue;
 
-			player->HearbeatCheck(currentTime);
+			offlineCheck = player->HearbeatCheck(currentTime);
+			if(offlineCheck == ServerStatus::OFFLINE)
+			{
+				// 플레이어가 오프라인 상태로 변경되었을 때 처리
+				DebugLog(Debug::DEBUG_LOG, std::format("Player is offline: {}", player->GetServerName()));
+
+				//_clientManager->RemoveClient(player->GetCompletionKey());
+				//delete player; // 메모리 해제
+				//_playerMap.erase(it); // 플레이어 맵에서 제거
+			}
+			
 		}
+
+		DebugLog(Debug::DEBUG_LOG, "PlayerOnlineCheck");
 	}
 
 	void ServerManager::ProcessHeartBeat()
@@ -43,6 +56,8 @@ namespace Manager
 			player->SaveRequestHearbeatTime();
 			_clientManager->AddMessageToClient(player->GetCompletionKey(), builder.GetBufferPointer(), builder.GetSize());
 		}
+
+		DebugLog(Debug::DEBUG_LOG, "ProcessHeartBeat");
 	}
 	
 	bool Player::IsOnline() const

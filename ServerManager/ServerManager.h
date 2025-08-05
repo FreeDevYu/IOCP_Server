@@ -21,6 +21,13 @@ namespace Manager
 		int	UpdateProcess() override;
 		int RegistMessageDispatcher() override;
 
+	protected:
+		void DebugLog(Debug::DebugType debugtype, const std::string& message) override;
+
+	public:
+		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
+		void SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback);
+
 	private:
 		tbb::concurrent_queue<std::shared_ptr<Network::MessageData>> _messageQueue;
 		void RecvMessageProcess();
@@ -45,6 +52,7 @@ namespace Manager
 	private:
 		void PlayerOnlineCheck(DWORD currentTime);
 		void ProcessHeartBeat();
+
 
 	};
 }

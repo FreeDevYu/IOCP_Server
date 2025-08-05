@@ -29,4 +29,9 @@ namespace Manager
 	{
 		return _completionKey;
 	}
+
+	std::string Player::GetServerName() const
+	{
+		return _serverName;
+	}
 }

@@ -1,5 +1,3 @@
-#ifndef _COMMON_LOGIC_STD_AFX_H_
-#define _COMMON_LOGIC_STD_AFX_H_
 
 // stdafx.h : 잘 변경되지 않고 자주 사용하는
 // 표준 시스템 포함 파일 및 프로젝트 관련 포함 파일이 
@@ -60,4 +58,28 @@
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
 #endif
 
-#endif // _COMMON_LOGIC_STD_AFX_H_
+namespace Debug
+{
+    enum DebugType
+    {
+        DEBUG_LOG,
+        DEBUG_NETWORK,
+        DEBUG_WARNING,
+        DEBUG_ERROR,
+
+        MAX
+    };;
+
+    inline const char* const* EnumNamesDebugType()
+    {
+        static const char* const names[DebugType::MAX + 1] = {
+          "DEBUG_LOG",
+          "DEBUG_NETWORK",
+          "DEBUG_WARNING",
+          "DEBUG_ERROR",
+          "MAX"
+        };
+
+        return names;
+    }
+}

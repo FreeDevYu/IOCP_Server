@@ -45,7 +45,7 @@ namespace MyGUI
         ImGui::BeginChild("ConsoleOutput", ImVec2(0, 0), true);  // 스크롤 가능한 영역
         for (const auto& message : _consoleMessages)
         {
-            ImGui::Text("You entered: %s", message.c_str());
+            ImGui::Text(message.c_str());
         }
 
         // 자동 스크롤 아래로
@@ -67,9 +67,11 @@ namespace MyGUI
 
     void DeveloperConsole::InputCallback(std::string input)
     {
-		_consoleMessages.push_back(input);
+        std::string result = "You entered: " + input;
+		_consoleMessages.push_back(result);
         // 콜백 부분
     }
+
 
     void DeveloperConsole::AddMessage(const std::string& type, const std::string& message)
     {

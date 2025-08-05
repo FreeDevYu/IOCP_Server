@@ -4,7 +4,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h> 
 #include <functional>
-
+#include <format>
 #include "ClientManager.h"
 #include "OverlappedManager.h"
 #include "NetworkUser.h"
@@ -89,6 +89,10 @@ namespace Network
 		virtual int	WorkProcess() = 0;
 		virtual int	AcceptProcess() = 0;
 		virtual int	UpdateProcess() = 0;
+
+	protected:
+		virtual void DebugLog(Debug::DebugType debugtype, const std::string& message) = 0;
+		
 	};
 
 	static unsigned int WINAPI WorkThreadProcess(void* pThis)
