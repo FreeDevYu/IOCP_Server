@@ -25,6 +25,9 @@ namespace Manager
 		void DebugLog(Debug::DebugType debugtype, const std::string& message) override;
 
 	public:
+		void ReceiveExternalCommand(const std::string& command) override;
+
+	public:
 		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
 		void SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback);
 

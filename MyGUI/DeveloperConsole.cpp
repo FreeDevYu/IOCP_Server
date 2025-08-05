@@ -25,14 +25,15 @@ namespace MyGUI
         auto consoleSize = ImGui::GetIO().DisplaySize;
         ImGui::SetNextWindowSize(consoleSize, ImGuiCond_Once);
         ImGui::Begin(_consoleName.c_str(), nullptr, ImGuiWindowFlags_NoMove);
-       // ImGui::Text("Console Initialized");
 
-        ImGui::InputText("Command", &_currentInputText);
-        ImGui::SameLine();  // 바로 오른쪽에 다음 위젯 배치
+        ImGui::Text("Command:");
+        ImGui::SameLine();
+        ImGui::InputText("##CommandInput", &_currentInputText);
+        ImGui::SameLine();  
         if (ImGui::Button("Submit"))
         {
             // 입력된 텍스트 처리
-            InputCallback(_currentInputText);
+            CommandCallback(_currentInputText);
             _currentInputText = "";
         }
 
@@ -65,10 +66,16 @@ namespace MyGUI
 		_consoleMessages.push_back("Console Reset");
     }
 
-    void DeveloperConsole::InputCallback(std::string input)
+    void DeveloperConsole::SetCommandCallback(std::function<void(const std::string&)> callback)
     {
-        std::string result = "You entered: " + input;
+        _requestCommand = callback;
+	}
+
+    void DeveloperConsole::CommandCallback(std::string command)
+    {
+        std::string result = "You entered: " + command;
 		_consoleMessages.push_back(result);
+        _requestCommand(command);
         // 콜백 부분
     }
 

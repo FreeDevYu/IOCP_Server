@@ -92,7 +92,7 @@ namespace Network
 
 	protected:
 		virtual void DebugLog(Debug::DebugType debugtype, const std::string& message) = 0;
-		
+		virtual void ReceiveExternalCommand(const std::string& command) = 0;
 	};
 
 	static unsigned int WINAPI WorkThreadProcess(void* pThis)

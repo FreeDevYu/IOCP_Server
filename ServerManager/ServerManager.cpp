@@ -318,4 +318,12 @@ namespace Manager
 		std::string typeString = Debug::EnumNamesDebugType()[debugtype]; // Ensure debugtype is valid
 		_debugLogCallback(typeString, message);
 	}
+
+	void ServerManager::ReceiveExternalCommand(const std::string& command)
+	{
+		// 외부 명령어를 처리하는 로직을 구현합니다.
+		// 예를 들어, 서버 상태 확인, 클라이언트 관리 등의 작업을 수행할 수 있습니다.
+
+		DebugLog(Debug::DEBUG_LOG, "Received external command: " + command);
+	}
 }

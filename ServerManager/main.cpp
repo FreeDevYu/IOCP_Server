@@ -100,6 +100,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
     );
 
+    console.SetCommandCallback
+    (
+        [&serverManager](const std::string& command) {
+            if (command == "exit" || command == "quit") 
+            {
+                PostQuitMessage(0); // 프로그램 종료
+            }
+            else 
+            {
+                serverManager.ReceiveExternalCommand(command);
+            }
+        }
+    );
+
     serverManager.Initialize(
         new Network::ClientManager(),
         new Network::OverlappedManager(),
