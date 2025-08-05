@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network", "Network\Network.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerManager", "ServerManager\ServerManager.vcxproj", "{95327AA8-5689-4E32-BC64-24BFAC36E0A4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyGUI", "MyGUI\MyGUI.vcxproj", "{859FDBC2-4918-4576-9D26-757B05FBFEB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{95327AA8-5689-4E32-BC64-24BFAC36E0A4}.Release|x64.Build.0 = Release|x64
 		{95327AA8-5689-4E32-BC64-24BFAC36E0A4}.Release|x86.ActiveCfg = Release|Win32
 		{95327AA8-5689-4E32-BC64-24BFAC36E0A4}.Release|x86.Build.0 = Release|Win32
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Debug|x64.ActiveCfg = Debug|x64
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Debug|x64.Build.0 = Debug|x64
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Debug|x86.ActiveCfg = Debug|Win32
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Debug|x86.Build.0 = Debug|Win32
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Release|x64.ActiveCfg = Release|x64
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Release|x64.Build.0 = Release|x64
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Release|x86.ActiveCfg = Release|Win32
+		{859FDBC2-4918-4576-9D26-757B05FBFEB4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
