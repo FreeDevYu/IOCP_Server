@@ -40,12 +40,95 @@ namespace Network
 		_clientManager->InitializeBase(maxClient);
 
 		_overlappedManager = overlappedManager;;
+
+		DebugLog(Debug::DEBUG_LOG, std::format("NetworkBaseServer Initialize: ServerPort = {}, HostName = {}, MaxClient = {}", serverPort, hostName, maxClient));
 	}
 
 	int NetworkBaseServer::StartIOCP()
 	{
-		if (!_iocpHandle)
-			_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+		int retCode;
+		WSADATA wsaData;
+		WSAStartup(MAKEWORD(2, 2), &wsaData); // Winsock 초기화
+
+		_serverSocket = ::WSASocket(
+			PF_INET,
+			SOCK_STREAM,
+			IPPROTO_TCP,
+			NULL,
+			0,
+			WSA_FLAG_OVERLAPPED);
+
+		if (_serverSocket == SOCKET_ERROR)
+		{
+			int errCode = WSAGetLastError();
+			DebugLog(Debug::DEBUG_ERROR, std::format("StartListenThread WSASocket failed: {}", errCode));
+			WSACleanup();
+			_serverOn = false;
+			return NETWORK_ERROR;
+		}
+
+		// Server 의 ip Address 를 얻는다.
+		char szHostName[128] = { 0 };
+		gethostname(szHostName, sizeof(szHostName));
+
+		addrinfo hints = {};
+		hints.ai_family = AF_INET;  // IPv4
+		hints.ai_socktype = SOCK_STREAM;
+		hints.ai_protocol = IPPROTO_TCP;
+
+		addrinfo* result = nullptr;
+		if (getaddrinfo(szHostName, nullptr, &hints, &result) == 0)
+		{
+			for (addrinfo* ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
+				sockaddr_in* addr = (sockaddr_in*)ptr->ai_addr;
+				char ip[16];
+				inet_ntop(AF_INET, &addr->sin_addr, ip, sizeof(ip));
+				//printf("IP: %s\n", ip);
+			}
+			freeaddrinfo(result);
+		}
+
+		BOOL val = TRUE;
+		if (setsockopt(_serverSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&val, sizeof(val)) != 0)
+		{
+			int errCode = WSAGetLastError();
+			DebugLog(Debug::DEBUG_ERROR, std::format("setsockopt error: {}", errCode));
+			closesocket(_serverSocket);
+			WSACleanup();
+			_serverOn = false;
+			return NETWORK_ERROR;
+		}
+
+		struct sockaddr_in serverAddr {};
+		serverAddr.sin_addr.s_addr = ::htonl(INADDR_ANY);
+		serverAddr.sin_family = AF_INET;
+		serverAddr.sin_port = ::htons(_serverPort);
+
+		retCode = ::bind(_serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+		if (retCode == SOCKET_ERROR)
+		{
+			int errCode = WSAGetLastError();
+			DebugLog(Debug::DEBUG_ERROR, std::format("bind error: {}", errCode));
+
+			::closesocket(_serverSocket);
+			::WSACleanup();
+			_serverOn = false;
+			return NETWORK_ERROR;
+		}
+
+		retCode = ::listen(_serverSocket, SOMAXCONN);
+		if (retCode == SOCKET_ERROR)
+		{
+			int errCode = WSAGetLastError();
+			DebugLog(Debug::DEBUG_ERROR, std::format("listen error: {}", errCode));
+
+			::closesocket(_serverSocket);
+			::WSACleanup();
+			_serverOn = false;
+			return NETWORK_ERROR;
+		}
+
+		_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
 		if (!_iocpHandle)
 		{
@@ -58,6 +141,10 @@ namespace Network
 			//sc::writeLogInfo(std::string("CreateIoCompletionPort ok"));
 			return NETWORK_OK;
 		}
+
+		CreateIoCompletionPort((HANDLE)_serverSocket, _iocpHandle, (ULONG_PTR)this, 0);
+
+		DebugLog(Debug::DEBUG_LOG, std::format("StartIOCP Complete: ServerPort = {}, HostName = {}", _serverPort, _hostName));
 	}
 
 	int NetworkBaseServer::StartWorkThreads()
@@ -134,89 +221,6 @@ namespace Network
 
 	int NetworkBaseServer::StartListenThread()
 	{
-		int retCode;
-		WSADATA wsaData;
-		WSAStartup(MAKEWORD(2, 2), &wsaData); // Winsock 초기화
-
-		_serverSocket = ::WSASocket(
-			PF_INET,
-			SOCK_STREAM,
-			IPPROTO_TCP,
-			NULL,
-			0,
-			WSA_FLAG_OVERLAPPED);
-
-		if (_serverSocket == SOCKET_ERROR)
-		{
-			int errCode = WSAGetLastError();
-			DebugLog(Debug::DEBUG_ERROR, std::format("StartListenThread WSASocket failed: {}", errCode));
-			WSACleanup();
-			_serverOn = false;
-			return NETWORK_ERROR;
-		}
-	
-		// Server 의 ip Address 를 얻는다.
-		char szHostName[128] = { 0 };
-		gethostname(szHostName, sizeof(szHostName));
-	
-		addrinfo hints = {};
-		hints.ai_family = AF_INET;  // IPv4
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_protocol = IPPROTO_TCP;
-	
-		addrinfo* result = nullptr;
-		if (getaddrinfo(szHostName, nullptr, &hints, &result) == 0) 
-		{
-			for (addrinfo* ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
-				sockaddr_in* addr = (sockaddr_in*)ptr->ai_addr;
-				char ip[16];
-				inet_ntop(AF_INET, &addr->sin_addr, ip, sizeof(ip));
-				//printf("IP: %s\n", ip);
-			}
-			freeaddrinfo(result);
-		}
-	
-		BOOL val = TRUE;
-		if (setsockopt(_serverSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&val, sizeof(val)) != 0)
-		{
-			int errCode = WSAGetLastError();
-			DebugLog(Debug::DEBUG_ERROR, std::format("setsockopt error: {}", errCode));
-			closesocket(_serverSocket);
-			WSACleanup();
-			_serverOn = false;
-			return NETWORK_ERROR;
-		}
-
-		struct sockaddr_in serverAddr {};
-		serverAddr.sin_addr.s_addr = ::htonl(INADDR_ANY);
-		serverAddr.sin_family = AF_INET;
-		serverAddr.sin_port = ::htons(_serverPort);
-
-		retCode = ::bind(_serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-		if (retCode == SOCKET_ERROR)
-		{
-			int errCode = WSAGetLastError();
-			DebugLog(Debug::DEBUG_ERROR, std::format("bind error: {}", errCode));
-
-			::closesocket(_serverSocket);
-			::WSACleanup();
-			_serverOn = false;
-			return NETWORK_ERROR;
-		}
-		
-
-		retCode = ::listen(_serverSocket, SOMAXCONN);
-		if (retCode == SOCKET_ERROR)
-		{
-			int errCode = WSAGetLastError();
-			DebugLog(Debug::DEBUG_ERROR, std::format("listen error: {}", errCode));
-
-			::closesocket(_serverSocket);
-			::WSACleanup();
-			_serverOn = false;
-			return NETWORK_ERROR;
-		}
-
 		DWORD	dwThreadId;
 
 		_acceptThread = (HANDLE) ::_beginthreadex(

@@ -143,8 +143,8 @@ namespace Network
 
         void Clear()
         {
+			std::memset(Wsabuf.buf, 0, sizeof(Wsabuf.len));
             Wsabuf.len = 0;
-            Wsabuf.buf = nullptr;
             OperationType = OP_DEFAULT;
             CompletionKey = 0;
             this->hEvent = NULL;

@@ -123,8 +123,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         config["CLIENT_CAPACITY"].get<int>()
     );
 
-    int feedback = 0;
-    feedback = serverManager.StartIOCP();
+ 
+    serverManager.StartIOCP();
+    serverManager.AddServerIP("127.0.0.1");
     serverManager.StartWorkThreads();
     serverManager.StartListenThread();
     serverManager.SetUpdateFrame(60); // FPS ¼³Á¤

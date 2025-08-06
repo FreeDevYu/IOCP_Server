@@ -14,6 +14,7 @@
     <ClCompile Include="HearBeat.cpp">
       <Filter>ServerManagerLogic</Filter>
     </ClCompile>
+    <ClCompile Include="ExternalCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ServerManagerLogic">

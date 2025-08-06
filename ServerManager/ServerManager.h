@@ -21,20 +21,13 @@ namespace Manager
 		int	UpdateProcess() override;
 		int RegistMessageDispatcher() override;
 
-	protected:
-		void DebugLog(Debug::DebugType debugtype, const std::string& message) override;
-
-	public:
-		void ReceiveExternalCommand(const std::string& command) override;
-
-	public:
-		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
-		void SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback);
-
 	private:
 		tbb::concurrent_queue<std::shared_ptr<Network::MessageData>> _messageQueue;
 		void RecvMessageProcess();
 		void ReadMessage(std::shared_ptr<Network::MessageData> messageData);
+
+	public:
+		void AddServerIP(const std::string& ip);
 
 	private:
 		tbb::concurrent_set<std::string> _serverIpSet;
@@ -56,6 +49,20 @@ namespace Manager
 		void PlayerOnlineCheck(DWORD currentTime);
 		void ProcessHeartBeat();
 
+	protected:
+		void DebugLog(Debug::DebugType debugtype, const std::string& message) override;
+
+	public:
+		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
+		void SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback);
+
+	public:
+		void ReceiveExternalCommand(const std::string& command) override;
+
+	private:
+		std::unordered_map<std::string, std::function<void(const std::string&)>> _commandMap;
+
+		void SettingExternalCommands();
 
 	};
 }
