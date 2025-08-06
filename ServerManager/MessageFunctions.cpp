@@ -2,44 +2,48 @@
 
 namespace Manager
 {
-	void ServerManager::REQUEST_CONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
+	void ServerManager::REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
 	{
 		Manager::ServerManager* serverManager = static_cast<Manager::ServerManager*>(&server);
 		bool success = true;
 		if (serverManager == nullptr)
 			return;
 
+		auto requestConnect = flatbuffers::GetRoot<protocol::REQUEST_REGISTER>(receiveMessage->Body);
+		if( requestConnect == nullptr)
+		{
+			DebugLog(Debug::DEBUG_ERROR, "REQUEST_REGISTER: Invalid request data.");
+			success = false;
+		}
+
 		DWORD completionKey = receiveMessage->CompletionKey;
 		Network::NetworkUser* networkUser = serverManager->GetNetworkUser(completionKey);
 
 		auto ipChecker = serverManager->_serverIpSet.find(networkUser->GetIpAddress());
-		if(ipChecker == serverManager->_serverIpSet.end())
+		if (ipChecker == serverManager->_serverIpSet.end())
 		{
 			success = false;
 		}
 		else
 		{
 			auto dulplicatePlayerChecker = serverManager->_playerMap.find(completionKey);
-			if (dulplicatePlayerChecker != serverManager->_playerMap.end())
+			if (dulplicatePlayerChecker == serverManager->_playerMap.end())
 			{
-				// 이미 존재하는 플레이어의 경우 처리 로직 추가 필요
+				// 요청플레이어 탐색 실패
 				success = false;
 			}
+
+			if (success)
+			{
+				// 플레이어 등록
+				dulplicatePlayerChecker->second->Register(requestConnect->server_name()->str());
+			}
 		}
-
-		if (success)
-		{
-			// 새로운 플레이어 추가
-			Manager::Player* newPlayer = new Manager::Player();
-			newPlayer->Initialize("Name", completionKey);
-			serverManager->_playerMap.insert({ completionKey, newPlayer });
-		}
-
-
+		
 		flatbuffers::FlatBufferBuilder builder;
-		builder.Finish(protocol::CreateRESPONSE_CONNECT(builder, success));
+		builder.Finish(protocol::CreateRESPONSE_REGISTER(builder, success));
 
-		Network::MessageHeader header(1, builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_CONNECT);// sendertype 필요한가?
+		Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_REGISTER);
 		std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
 			completionKey,
 			header,
@@ -49,7 +53,7 @@ namespace Manager
 		SendMessageToClient(completionKey, messageData);
 	}
 
-	void ServerManager::RESPONSE_CONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
+	void ServerManager::RESPONSE_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
 	{
 
 	}

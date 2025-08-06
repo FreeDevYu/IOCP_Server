@@ -58,4 +58,9 @@ namespace Manager
 		_serverIpSet.insert(ip);
 		DebugLog(Debug::DEBUG_LOG, std::format("AddServerIP: IP {} added successfully.", ip));
 	}
+
+	bool ServerManager::CheckServerIP(const std::string& ip) const
+	{
+		return _serverIpSet.find(ip) != _serverIpSet.end();
+	}
 }

@@ -15,20 +15,11 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
 
 namespace protocol {
 
-struct REQUEST_CONNECT;
-struct REQUEST_CONNECTBuilder;
+struct REQUEST_REGISTER;
+struct REQUEST_REGISTERBuilder;
 
-struct RESPONSE_CONNECT;
-struct RESPONSE_CONNECTBuilder;
-
-struct NOTICE_KICK;
-struct NOTICE_KICKBuilder;
-
-struct REQUEST_DISCONNECT;
-struct REQUEST_DISCONNECTBuilder;
-
-struct RESPONSE_DISCONNECT;
-struct RESPONSE_DISCONNECTBuilder;
+struct RESPONSE_REGISTER;
+struct RESPONSE_REGISTERBuilder;
 
 struct REQUEST_HEARTBEAT;
 struct REQUEST_HEARTBEATBuilder;
@@ -41,26 +32,20 @@ struct MESSAGE_PROTOCOLBuilder;
 
 enum MESSAGETYPE : int32_t {
   MESSAGETYPE_BEGIN = 0,
-  MESSAGETYPE_REQUEST_CONNECT = 1,
-  MESSAGETYPE_RESPONSE_CONNECT = 2,
-  MESSAGETYPE_REQUEST_DISCONNECT = 3,
-  MESSAGETYPE_RESPONSE_DISCONNECT = 4,
-  MESSAGETYPE_NOTICE_KICK = 5,
-  MESSAGETYPE_REQUEST_HEARTBEAT = 6,
-  MESSAGETYPE_RESPONSE_HEARTBEAT = 7,
-  MESSAGETYPE_END = 8,
+  MESSAGETYPE_REQUEST_REGISTER = 1,
+  MESSAGETYPE_RESPONSE_REGISTER = 2,
+  MESSAGETYPE_REQUEST_HEARTBEAT = 3,
+  MESSAGETYPE_RESPONSE_HEARTBEAT = 4,
+  MESSAGETYPE_END = 5,
   MESSAGETYPE_MIN = MESSAGETYPE_BEGIN,
   MESSAGETYPE_MAX = MESSAGETYPE_END
 };
 
-inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[9] {
+inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[6] {
   static const MESSAGETYPE values[] = {
     MESSAGETYPE_BEGIN,
-    MESSAGETYPE_REQUEST_CONNECT,
-    MESSAGETYPE_RESPONSE_CONNECT,
-    MESSAGETYPE_REQUEST_DISCONNECT,
-    MESSAGETYPE_RESPONSE_DISCONNECT,
-    MESSAGETYPE_NOTICE_KICK,
+    MESSAGETYPE_REQUEST_REGISTER,
+    MESSAGETYPE_RESPONSE_REGISTER,
     MESSAGETYPE_REQUEST_HEARTBEAT,
     MESSAGETYPE_RESPONSE_HEARTBEAT,
     MESSAGETYPE_END
@@ -69,13 +54,10 @@ inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[9] {
 }
 
 inline const char * const *EnumNamesMESSAGETYPE() {
-  static const char * const names[10] = {
+  static const char * const names[7] = {
     "BEGIN",
-    "REQUEST_CONNECT",
-    "RESPONSE_CONNECT",
-    "REQUEST_DISCONNECT",
-    "RESPONSE_DISCONNECT",
-    "NOTICE_KICK",
+    "REQUEST_REGISTER",
+    "RESPONSE_REGISTER",
     "REQUEST_HEARTBEAT",
     "RESPONSE_HEARTBEAT",
     "END",
@@ -92,25 +74,19 @@ inline const char *EnumNameMESSAGETYPE(MESSAGETYPE e) {
 
 enum Content : uint8_t {
   Content_NONE = 0,
-  Content_REQUEST_CONNECT = 1,
-  Content_RESPONSE_CONNECT = 2,
-  Content_REQUEST_DISCONNECT = 3,
-  Content_RESPONSE_DISCONNECT = 4,
-  Content_NOTICE_KICK = 5,
-  Content_REQUEST_HEARTBEAT = 6,
-  Content_RESPONSE_HEARTBEAT = 7,
+  Content_REQUEST_REGISTER = 1,
+  Content_RESPONSE_REGISTER = 2,
+  Content_REQUEST_HEARTBEAT = 3,
+  Content_RESPONSE_HEARTBEAT = 4,
   Content_MIN = Content_NONE,
   Content_MAX = Content_RESPONSE_HEARTBEAT
 };
 
-inline const Content (&EnumValuesContent())[8] {
+inline const Content (&EnumValuesContent())[5] {
   static const Content values[] = {
     Content_NONE,
-    Content_REQUEST_CONNECT,
-    Content_RESPONSE_CONNECT,
-    Content_REQUEST_DISCONNECT,
-    Content_RESPONSE_DISCONNECT,
-    Content_NOTICE_KICK,
+    Content_REQUEST_REGISTER,
+    Content_RESPONSE_REGISTER,
     Content_REQUEST_HEARTBEAT,
     Content_RESPONSE_HEARTBEAT
   };
@@ -118,13 +94,10 @@ inline const Content (&EnumValuesContent())[8] {
 }
 
 inline const char * const *EnumNamesContent() {
-  static const char * const names[9] = {
+  static const char * const names[6] = {
     "NONE",
-    "REQUEST_CONNECT",
-    "RESPONSE_CONNECT",
-    "REQUEST_DISCONNECT",
-    "RESPONSE_DISCONNECT",
-    "NOTICE_KICK",
+    "REQUEST_REGISTER",
+    "RESPONSE_REGISTER",
     "REQUEST_HEARTBEAT",
     "RESPONSE_HEARTBEAT",
     nullptr
@@ -142,24 +115,12 @@ template<typename T> struct ContentTraits {
   static const Content enum_value = Content_NONE;
 };
 
-template<> struct ContentTraits<protocol::REQUEST_CONNECT> {
-  static const Content enum_value = Content_REQUEST_CONNECT;
+template<> struct ContentTraits<protocol::REQUEST_REGISTER> {
+  static const Content enum_value = Content_REQUEST_REGISTER;
 };
 
-template<> struct ContentTraits<protocol::RESPONSE_CONNECT> {
-  static const Content enum_value = Content_RESPONSE_CONNECT;
-};
-
-template<> struct ContentTraits<protocol::REQUEST_DISCONNECT> {
-  static const Content enum_value = Content_REQUEST_DISCONNECT;
-};
-
-template<> struct ContentTraits<protocol::RESPONSE_DISCONNECT> {
-  static const Content enum_value = Content_RESPONSE_DISCONNECT;
-};
-
-template<> struct ContentTraits<protocol::NOTICE_KICK> {
-  static const Content enum_value = Content_NOTICE_KICK;
+template<> struct ContentTraits<protocol::RESPONSE_REGISTER> {
+  static const Content enum_value = Content_RESPONSE_REGISTER;
 };
 
 template<> struct ContentTraits<protocol::REQUEST_HEARTBEAT> {
@@ -173,37 +134,73 @@ template<> struct ContentTraits<protocol::RESPONSE_HEARTBEAT> {
 bool VerifyContent(::flatbuffers::Verifier &verifier, const void *obj, Content type);
 bool VerifyContentVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-struct REQUEST_CONNECT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef REQUEST_CONNECTBuilder Builder;
+struct REQUEST_REGISTER FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef REQUEST_REGISTERBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SERVER_NAME = 4,
+    VT_SECRET_KEY = 6
+  };
+  const ::flatbuffers::String *server_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SERVER_NAME);
+  }
+  const ::flatbuffers::String *secret_key() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SECRET_KEY);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_SERVER_NAME) &&
+           verifier.VerifyString(server_name()) &&
+           VerifyOffset(verifier, VT_SECRET_KEY) &&
+           verifier.VerifyString(secret_key()) &&
            verifier.EndTable();
   }
 };
 
-struct REQUEST_CONNECTBuilder {
-  typedef REQUEST_CONNECT Table;
+struct REQUEST_REGISTERBuilder {
+  typedef REQUEST_REGISTER Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  explicit REQUEST_CONNECTBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  void add_server_name(::flatbuffers::Offset<::flatbuffers::String> server_name) {
+    fbb_.AddOffset(REQUEST_REGISTER::VT_SERVER_NAME, server_name);
+  }
+  void add_secret_key(::flatbuffers::Offset<::flatbuffers::String> secret_key) {
+    fbb_.AddOffset(REQUEST_REGISTER::VT_SECRET_KEY, secret_key);
+  }
+  explicit REQUEST_REGISTERBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<REQUEST_CONNECT> Finish() {
+  ::flatbuffers::Offset<REQUEST_REGISTER> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<REQUEST_CONNECT>(end);
+    auto o = ::flatbuffers::Offset<REQUEST_REGISTER>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<REQUEST_CONNECT> CreateREQUEST_CONNECT(
-    ::flatbuffers::FlatBufferBuilder &_fbb) {
-  REQUEST_CONNECTBuilder builder_(_fbb);
+inline ::flatbuffers::Offset<REQUEST_REGISTER> CreateREQUEST_REGISTER(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> server_name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> secret_key = 0) {
+  REQUEST_REGISTERBuilder builder_(_fbb);
+  builder_.add_secret_key(secret_key);
+  builder_.add_server_name(server_name);
   return builder_.Finish();
 }
 
-struct RESPONSE_CONNECT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RESPONSE_CONNECTBuilder Builder;
+inline ::flatbuffers::Offset<REQUEST_REGISTER> CreateREQUEST_REGISTERDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *server_name = nullptr,
+    const char *secret_key = nullptr) {
+  auto server_name__ = server_name ? _fbb.CreateString(server_name) : 0;
+  auto secret_key__ = secret_key ? _fbb.CreateString(secret_key) : 0;
+  return protocol::CreateREQUEST_REGISTER(
+      _fbb,
+      server_name__,
+      secret_key__);
+}
+
+struct RESPONSE_REGISTER FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RESPONSE_REGISTERBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FEEDBACK = 4
   };
@@ -217,139 +214,28 @@ struct RESPONSE_CONNECT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
 };
 
-struct RESPONSE_CONNECTBuilder {
-  typedef RESPONSE_CONNECT Table;
+struct RESPONSE_REGISTERBuilder {
+  typedef RESPONSE_REGISTER Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_feedback(bool feedback) {
-    fbb_.AddElement<uint8_t>(RESPONSE_CONNECT::VT_FEEDBACK, static_cast<uint8_t>(feedback), 0);
+    fbb_.AddElement<uint8_t>(RESPONSE_REGISTER::VT_FEEDBACK, static_cast<uint8_t>(feedback), 0);
   }
-  explicit RESPONSE_CONNECTBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit RESPONSE_REGISTERBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<RESPONSE_CONNECT> Finish() {
+  ::flatbuffers::Offset<RESPONSE_REGISTER> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<RESPONSE_CONNECT>(end);
+    auto o = ::flatbuffers::Offset<RESPONSE_REGISTER>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<RESPONSE_CONNECT> CreateRESPONSE_CONNECT(
+inline ::flatbuffers::Offset<RESPONSE_REGISTER> CreateRESPONSE_REGISTER(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool feedback = false) {
-  RESPONSE_CONNECTBuilder builder_(_fbb);
-  builder_.add_feedback(feedback);
-  return builder_.Finish();
-}
-
-struct NOTICE_KICK FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef NOTICE_KICKBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_COMPLETIONKEY = 4
-  };
-  uint32_t completionkey() const {
-    return GetField<uint32_t>(VT_COMPLETIONKEY, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_COMPLETIONKEY, 4) &&
-           verifier.EndTable();
-  }
-};
-
-struct NOTICE_KICKBuilder {
-  typedef NOTICE_KICK Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_completionkey(uint32_t completionkey) {
-    fbb_.AddElement<uint32_t>(NOTICE_KICK::VT_COMPLETIONKEY, completionkey, 0);
-  }
-  explicit NOTICE_KICKBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<NOTICE_KICK> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<NOTICE_KICK>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<NOTICE_KICK> CreateNOTICE_KICK(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t completionkey = 0) {
-  NOTICE_KICKBuilder builder_(_fbb);
-  builder_.add_completionkey(completionkey);
-  return builder_.Finish();
-}
-
-struct REQUEST_DISCONNECT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef REQUEST_DISCONNECTBuilder Builder;
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           verifier.EndTable();
-  }
-};
-
-struct REQUEST_DISCONNECTBuilder {
-  typedef REQUEST_DISCONNECT Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  explicit REQUEST_DISCONNECTBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<REQUEST_DISCONNECT> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<REQUEST_DISCONNECT>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<REQUEST_DISCONNECT> CreateREQUEST_DISCONNECT(
-    ::flatbuffers::FlatBufferBuilder &_fbb) {
-  REQUEST_DISCONNECTBuilder builder_(_fbb);
-  return builder_.Finish();
-}
-
-struct RESPONSE_DISCONNECT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RESPONSE_DISCONNECTBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_FEEDBACK = 4
-  };
-  bool feedback() const {
-    return GetField<uint8_t>(VT_FEEDBACK, 0) != 0;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_FEEDBACK, 1) &&
-           verifier.EndTable();
-  }
-};
-
-struct RESPONSE_DISCONNECTBuilder {
-  typedef RESPONSE_DISCONNECT Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_feedback(bool feedback) {
-    fbb_.AddElement<uint8_t>(RESPONSE_DISCONNECT::VT_FEEDBACK, static_cast<uint8_t>(feedback), 0);
-  }
-  explicit RESPONSE_DISCONNECTBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<RESPONSE_DISCONNECT> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<RESPONSE_DISCONNECT>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<RESPONSE_DISCONNECT> CreateRESPONSE_DISCONNECT(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool feedback = false) {
-  RESPONSE_DISCONNECTBuilder builder_(_fbb);
+  RESPONSE_REGISTERBuilder builder_(_fbb);
   builder_.add_feedback(feedback);
   return builder_.Finish();
 }
@@ -441,20 +327,11 @@ struct MESSAGE_PROTOCOL FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return GetPointer<const void *>(VT_CONTENT);
   }
   template<typename T> const T *content_as() const;
-  const protocol::REQUEST_CONNECT *content_as_REQUEST_CONNECT() const {
-    return content_type() == protocol::Content_REQUEST_CONNECT ? static_cast<const protocol::REQUEST_CONNECT *>(content()) : nullptr;
+  const protocol::REQUEST_REGISTER *content_as_REQUEST_REGISTER() const {
+    return content_type() == protocol::Content_REQUEST_REGISTER ? static_cast<const protocol::REQUEST_REGISTER *>(content()) : nullptr;
   }
-  const protocol::RESPONSE_CONNECT *content_as_RESPONSE_CONNECT() const {
-    return content_type() == protocol::Content_RESPONSE_CONNECT ? static_cast<const protocol::RESPONSE_CONNECT *>(content()) : nullptr;
-  }
-  const protocol::REQUEST_DISCONNECT *content_as_REQUEST_DISCONNECT() const {
-    return content_type() == protocol::Content_REQUEST_DISCONNECT ? static_cast<const protocol::REQUEST_DISCONNECT *>(content()) : nullptr;
-  }
-  const protocol::RESPONSE_DISCONNECT *content_as_RESPONSE_DISCONNECT() const {
-    return content_type() == protocol::Content_RESPONSE_DISCONNECT ? static_cast<const protocol::RESPONSE_DISCONNECT *>(content()) : nullptr;
-  }
-  const protocol::NOTICE_KICK *content_as_NOTICE_KICK() const {
-    return content_type() == protocol::Content_NOTICE_KICK ? static_cast<const protocol::NOTICE_KICK *>(content()) : nullptr;
+  const protocol::RESPONSE_REGISTER *content_as_RESPONSE_REGISTER() const {
+    return content_type() == protocol::Content_RESPONSE_REGISTER ? static_cast<const protocol::RESPONSE_REGISTER *>(content()) : nullptr;
   }
   const protocol::REQUEST_HEARTBEAT *content_as_REQUEST_HEARTBEAT() const {
     return content_type() == protocol::Content_REQUEST_HEARTBEAT ? static_cast<const protocol::REQUEST_HEARTBEAT *>(content()) : nullptr;
@@ -472,24 +349,12 @@ struct MESSAGE_PROTOCOL FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
 };
 
-template<> inline const protocol::REQUEST_CONNECT *MESSAGE_PROTOCOL::content_as<protocol::REQUEST_CONNECT>() const {
-  return content_as_REQUEST_CONNECT();
+template<> inline const protocol::REQUEST_REGISTER *MESSAGE_PROTOCOL::content_as<protocol::REQUEST_REGISTER>() const {
+  return content_as_REQUEST_REGISTER();
 }
 
-template<> inline const protocol::RESPONSE_CONNECT *MESSAGE_PROTOCOL::content_as<protocol::RESPONSE_CONNECT>() const {
-  return content_as_RESPONSE_CONNECT();
-}
-
-template<> inline const protocol::REQUEST_DISCONNECT *MESSAGE_PROTOCOL::content_as<protocol::REQUEST_DISCONNECT>() const {
-  return content_as_REQUEST_DISCONNECT();
-}
-
-template<> inline const protocol::RESPONSE_DISCONNECT *MESSAGE_PROTOCOL::content_as<protocol::RESPONSE_DISCONNECT>() const {
-  return content_as_RESPONSE_DISCONNECT();
-}
-
-template<> inline const protocol::NOTICE_KICK *MESSAGE_PROTOCOL::content_as<protocol::NOTICE_KICK>() const {
-  return content_as_NOTICE_KICK();
+template<> inline const protocol::RESPONSE_REGISTER *MESSAGE_PROTOCOL::content_as<protocol::RESPONSE_REGISTER>() const {
+  return content_as_RESPONSE_REGISTER();
 }
 
 template<> inline const protocol::REQUEST_HEARTBEAT *MESSAGE_PROTOCOL::content_as<protocol::REQUEST_HEARTBEAT>() const {
@@ -541,24 +406,12 @@ inline bool VerifyContent(::flatbuffers::Verifier &verifier, const void *obj, Co
     case Content_NONE: {
       return true;
     }
-    case Content_REQUEST_CONNECT: {
-      auto ptr = reinterpret_cast<const protocol::REQUEST_CONNECT *>(obj);
+    case Content_REQUEST_REGISTER: {
+      auto ptr = reinterpret_cast<const protocol::REQUEST_REGISTER *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Content_RESPONSE_CONNECT: {
-      auto ptr = reinterpret_cast<const protocol::RESPONSE_CONNECT *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case Content_REQUEST_DISCONNECT: {
-      auto ptr = reinterpret_cast<const protocol::REQUEST_DISCONNECT *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case Content_RESPONSE_DISCONNECT: {
-      auto ptr = reinterpret_cast<const protocol::RESPONSE_DISCONNECT *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case Content_NOTICE_KICK: {
-      auto ptr = reinterpret_cast<const protocol::NOTICE_KICK *>(obj);
+    case Content_RESPONSE_REGISTER: {
+      auto ptr = reinterpret_cast<const protocol::RESPONSE_REGISTER *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Content_REQUEST_HEARTBEAT: {

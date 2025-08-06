@@ -140,9 +140,8 @@ namespace Manager
 			getpeername(newAcceptSocket, (sockaddr*)&addressInfo, &addressInfoSize);
 			inet_ntop(AF_INET, &(addressInfo.sin_addr), ip, INET_ADDRSTRLEN);
 			port = ntohs(addressInfo.sin_port);
-
-			//서버인지 체크를 먼저 할필요가 있을까?
-
+			std::string stringIp(ip);	
+			
 			completionKey = _clientManager->PopCompletionKey();
 			if (completionKey == NETWORK_ERROR)
 			{
@@ -163,8 +162,12 @@ namespace Manager
 				continue;
 			}
 
-			std::string stringIp(ip);
 			newAcceptUser->Initialize(completionKey, newAcceptSocket, stringIp, port);
+
+			// 새로운 플레이어 추가
+			Manager::Player* newPlayer = new Manager::Player();
+			newPlayer->Initialize(completionKey, timeGetTime());
+			_playerMap.insert({ completionKey, newPlayer });
 
 			handleReturnCode = CreateIoCompletionPort(
 				(HANDLE)newAcceptSocket,
@@ -176,8 +179,7 @@ namespace Manager
 			{
 				_clientManager->RemoveClient(completionKey);
 				DebugLog(Debug::DEBUG_WARNING, std::format("CreateIoCompletionPort failed for socket {}: {}", newAcceptSocket, GetLastError()));
-				//sc::writeLogError(std::string("CreateIoCompletionPort error"));
-				//CloseClient(dwClient);
+
 				continue;
 			}
 
@@ -185,7 +187,6 @@ namespace Manager
 			if (overlapped == nullptr)
 			{
 				DebugLog(Debug::DEBUG_ERROR, "AcceptProcess: Failed to pop overlapped structure.");
-				//_clientManager->RemoveClient(completionKey);
 				continue;
 			}
 
@@ -221,9 +222,6 @@ namespace Manager
 	int ServerManager::UpdateProcess()
 	{
 		// 게임 업데이트 로직을 구현합니다.
-		// 예를 들어, 게임 상태 업데이트, 클라이언트에게 데이터 전송 등을 수행할 수 있습니다.
-
-		
 		DWORD currentTime = 0;
 		DWORD offset = 0;
 		DWORD quitEventResult = 0;

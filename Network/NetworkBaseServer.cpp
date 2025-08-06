@@ -39,7 +39,7 @@ namespace Network
 		_clientManager = clientManager;
 		_clientManager->InitializeBase(maxClient);
 
-		_overlappedManager = overlappedManager;;
+		_overlappedManager = overlappedManager;
 
 		DebugLog(Debug::DEBUG_LOG, std::format("NetworkBaseServer Initialize: ServerPort = {}, HostName = {}, MaxClient = {}", serverPort, hostName, maxClient));
 	}

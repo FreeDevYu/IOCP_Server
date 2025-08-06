@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 #ifdef CONFGINTEST
     Utility::CreateConfig("servermanager_config.json");
-#endif
+#else
 
     auto config = Utility::LoadSettingFiles("servermanager_config.json");
 
@@ -114,6 +114,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         }
     );
 
+	Manager::ServerManagerDefine::Instance().SetHeartBeatInterval(config["HEARTBEAT_INTERVAL"].get<int>());
+	Manager::ServerManagerDefine::Instance().SetHeartBeatTimeout(config["HEARTBEAT_TIMEOUT"].get<int>());
+	Manager::ServerManagerDefine::Instance().SetHeartBeatMaxCount(config["HEARTBEAT_TIMEOUT_CHANCE"].get<int>());
+
+	Manager::ServerManagerDefine::Instance().SetRegisterWaitTime(config["REGISTER_TIMEOUT"].get<int>());
+
+
     serverManager.Initialize(
         new Network::ClientManager(),
         new Network::OverlappedManager(),
@@ -123,7 +130,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         config["CLIENT_CAPACITY"].get<int>()
     );
 
- 
+    std::string settingMessage = std::format(
+        "HEARTBEAT INTERVAL = {}, HEARTBEAT TIMEOUT = {}, HEARTBEAT TIMEOUT LIFE = {}, REGISTER TIMEOUT = {}",
+        static_cast<int>(Manager::ServerManagerDefine::Instance().GetHeartBeatInterval()),
+        static_cast<int>(Manager::ServerManagerDefine::Instance().GetHeartBeatTimeout()),
+        static_cast<int>(Manager::ServerManagerDefine::Instance().GetHeartBeatMaxCount()),
+        static_cast<int>(Manager::ServerManagerDefine::Instance().GetRegisterWaitTime()));
+
+    console.AddMessage("Setting", settingMessage);
+
     serverManager.StartIOCP();
     serverManager.AddServerIP("127.0.0.1");
     serverManager.StartWorkThreads();
@@ -164,6 +179,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(hglrc);
     ReleaseDC(hwnd, hdc);
+
+#endif
 
     return 0;
 }

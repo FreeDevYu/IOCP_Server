@@ -46,7 +46,7 @@ namespace Network
 			return NETWORK_ERROR; // 버퍼에 메시지가 없다.
 		}
 
-		MessageHeader header{ 0,0,0 };
+		MessageHeader header{ 0,0 };
 		std::memcpy(&header, _buffer, sizeof(MessageHeader));
 
 		if(header.BodySize <= 0 || header.BodySize > NET_DATA_BUFSIZE)

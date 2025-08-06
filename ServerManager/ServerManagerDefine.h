@@ -17,10 +17,12 @@ namespace Manager
         DWORD GetHeartBeatInterval() const { return _interval; }
         DWORD GetHeartBeatTimeout() const { return _timeout; }
         DWORD GetHeartBeatMaxCount() const { return _maxCount; }
+		DWORD GetRegisterWaitTime() const { return _registerWaitTime; }
 
         void SetHeartBeatInterval(DWORD interval) { _interval = interval; }
         void SetHeartBeatTimeout(DWORD timeout) { _timeout = timeout; }
         void SetHeartBeatMaxCount(DWORD maxCount) { _maxCount = maxCount; }
+		void SetRegisterWaitTime(DWORD waitTime) { _registerWaitTime = waitTime; }
 
     private:
         // 복사 및 대입 방지
@@ -32,5 +34,7 @@ namespace Manager
         DWORD _interval;
         DWORD _timeout;
         DWORD _maxCount;
+
+		DWORD _registerWaitTime;
     };
 }

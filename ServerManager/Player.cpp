@@ -5,7 +5,7 @@ namespace Manager
 {
 	Player::Player()
 		: _completionKey(0)
-		, _serverStatus(ServerStatus::ONLINE)
+		, _serverStatus(ServerStatus::NOT_REGIST)
 		, _lastResponseTime(0)
 	{
 	}
@@ -17,11 +17,17 @@ namespace Manager
 		_lastResponseTime = 0;
 	}
 
-	void Player::Initialize(const std::string& serverName, const DWORD completionKey)
+	void Player::Initialize(const DWORD completionKey, const DWORD registerTime)
 	{
 		_completionKey = completionKey;
+		_registerTime = registerTime;
+		_serverStatus = ServerStatus::NOT_REGIST; // 초기 상태는 ONLINE로 설정
+	}
+
+	void Player::Register(const std::string& serverName)
+	{
 		_serverName = serverName;
-		_serverStatus = ServerStatus::ONLINE; // 초기 상태는 ONLINE로 설정
+		_serverStatus = ServerStatus::REQUEST; // 서버 등록 요청 상태로 변경
 		_lastResponseTime = GetTickCount(); // 현재 시간으로 초기화
 	}
 

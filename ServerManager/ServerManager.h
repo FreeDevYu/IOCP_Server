@@ -30,12 +30,15 @@ namespace Manager
 		void AddServerIP(const std::string& ip);
 
 	private:
+		bool CheckServerIP(const std::string& ip) const;
+
+	private:
 		tbb::concurrent_set<std::string> _serverIpSet;
 		tbb::concurrent_map<DWORD, Manager::Player*> _playerMap;
 
 	private:
-		void REQUEST_CONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-		void RESPONSE_CONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void RESPONSE_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
 		void REQUEST_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void RESPONSE_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);

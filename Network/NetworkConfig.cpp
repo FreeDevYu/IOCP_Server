@@ -16,6 +16,12 @@ namespace Utility
 		config["CLIENT_CAPACITY"] = 10;
 		config["OVERLAPPED_COUNT_MAX"] = 50;
 
+		config["HEARTBEAT_INTERVAL"] = 60;
+		config["HEARTBEAT_TIMEOUT"] = 30;
+		config["HEARTBEAT_TIMEOUT_CHANCE"] = 3;
+
+		config["REGISTER_TIMEOUT"] = 60;
+
 		std::ofstream file(fileName);
 		file << config.dump(4);  // 4는 들여쓰기 수준
 

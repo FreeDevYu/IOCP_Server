@@ -15,11 +15,11 @@ namespace Manager
 			auto player = it->second;
 			if (player == nullptr)
 				continue;
-			if (!player->IsOnline())
+			if (!player->IsHeartbeatTarget())
 				continue;
 
-			offlineCheck = player->HearbeatCheck(currentTime);
-			if(offlineCheck == ServerStatus::OFFLINE)
+			offlineCheck = player->CheckKickoutTarget(currentTime);
+			if(offlineCheck == true)
 			{
 				// 플레이어가 오프라인 상태로 변경되었을 때 처리
 				DebugLog(Debug::DEBUG_LOG, std::format("Player is offline: {}", player->GetServerName()));
@@ -31,7 +31,7 @@ namespace Manager
 			
 		}
 
-		DebugLog(Debug::DEBUG_LOG, "PlayerOnlineCheck");
+		DebugLog(Debug::DEBUG_LOG, "PlayerOnlineCheck Complete");
 	}
 
 	void ServerManager::ProcessHeartBeat()
@@ -50,7 +50,7 @@ namespace Manager
 			if (player == nullptr)
 				continue;
 
-			if (!player->IsOnline())
+			if (!player->IsHeartbeatTarget())
 				continue;
 
 			player->SaveRequestHearbeatTime();
@@ -60,13 +60,20 @@ namespace Manager
 		DebugLog(Debug::DEBUG_LOG, "ProcessHeartBeat");
 	}
 	
-	bool Player::IsOnline() const
+	bool Player::IsHeartbeatTarget() const
 	{
-		return _serverStatus != ServerStatus::OFFLINE;
+		return _serverStatus != ServerStatus::OFFLINE && _serverStatus != ServerStatus::NOT_REGIST;
 	}
 
-	int Player::HearbeatCheck(DWORD currentTime)
+	bool Player::CheckKickoutTarget(DWORD currentTime)
 	{
+		if(_serverStatus == ServerStatus::NOT_REGIST && _registerTime + Manager::ServerManagerDefine::Instance().GetRegisterWaitTime() < currentTime)
+		{
+			// 등록 대기 시간이 초과된 경우
+			_serverStatus = ServerStatus::OFFLINE; // 서버 상태를 OFFLINE으로 변경
+			return true;
+		}
+
 		// 하트비트 타임아웃 발생
 		if (_serverStatus == ServerStatus::REQUEST && _lastRequestTime + Manager::ServerManagerDefine::Instance().GetHeartBeatTimeout() < currentTime)
 		{
@@ -76,11 +83,11 @@ namespace Manager
 			if (_timeOutCount > Manager::ServerManagerDefine::Instance().GetHeartBeatMaxCount())
 			{
 				_serverStatus = ServerStatus::OFFLINE; // 최대 타임아웃 횟수 초과 시 OFFLINE 상태로 변경
-				//오프라인처리
+				return true;
 			}
 		}
 
-		return _serverStatus;
+		return false;
 	}
 
 	void Player::SaveRequestHearbeatTime()
