@@ -209,7 +209,10 @@ namespace Manager
 				newAcceptUser->DecreasePendingIOCount();
 				//_clientManager->RemoveClient(completionKey); ->job형태로 바꾸기.
 				_overlappedManager->Push(overlapped);
-				continue;
+			}
+			else
+			{
+				DebugLog(Debug::DEBUG_LOG, std::format("WSARecv initiated for socket {}: bytesTransferred = {}, flags = {}", newAcceptSocket, bytesTransferred, flags));
 			}
 
 			DebugLog(Debug::DEBUG_LOG, std::format("AcceptProcess: New client connected: IP = {}, Port = {}, CompletionKey = {}", stringIp, port, completionKey));
@@ -246,22 +249,38 @@ namespace Manager
 				// 업데이트 스레드가 종료 요청을 받았을 때 처리합니다.
 				break;
 			}
-			else if (quitEventResult == WAIT_TIMEOUT)
-			{
-				// 업데이트 작업을 수행합니다.
 
-				RecvMessageProcess();
+			// 업데이트 작업을 수행합니다.
 
-				if(timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
-				{
-					ProcessHeartBeat();
-					lastHeartbeatTime = timeGetTime();
-				}
-				else
-				{
-					PlayerOnlineCheck(currentTime);
-				}
-			}
+			RecvMessageProcess();
+
+		//	if (timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
+		//	{
+		//		ProcessHeartBeat();
+		//		lastHeartbeatTime = timeGetTime();
+		//	}
+		//	else
+		//	{
+		//		//너무 많이호출되어 임시 주석처리
+		//		//PlayerOnlineCheck(currentTime);
+		//	}
+
+		//	else if (quitEventResult == WAIT_TIMEOUT)
+		//	{
+		//		// 업데이트 작업을 수행합니다.
+		//
+		//		RecvMessageProcess();
+		//
+		//		if(timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
+		//		{
+		//			ProcessHeartBeat();
+		//			lastHeartbeatTime = timeGetTime();
+		//		}
+		//		else
+		//		{
+		//			PlayerOnlineCheck(currentTime);
+		//		}
+		//	}
 		}
 
 		return NETWORK_OK;

@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Network\MESSAGE_PROTOCOL_generated.h" />
+  </ItemGroup>
 </Project>

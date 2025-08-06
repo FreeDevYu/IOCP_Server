@@ -6,7 +6,11 @@
 #include <mswsock.h>
 #include <ws2tcpip.h>
 
+#include "../ThirdParty/flatbuffers/flatbuffers.h"
+#include "../Network/MESSAGE_PROTOCOL_generated.h"
+#include "../Network/MessageBuilder.h"
 
+Network::MessageBuilder messageBuilder;
 Network::OverlappedManager* overlappedManager;
 SOCKET Socket = INVALID_SOCKET;
 HANDLE IocpHandle;
@@ -14,6 +18,8 @@ HANDLE IocpHandle;
 HANDLE WorkThread;
 
 void ReceiveReady();
+void MessageSend(std::shared_ptr<Network::MessageData> messageData);
+
 static unsigned int WINAPI Work(void* pThis);
 
 int main()
@@ -117,6 +123,35 @@ int main()
 	return 0;
 }
 
+void MessageSend(std::shared_ptr<Network::MessageData> messageData)
+{
+	DWORD flags = 0;
+	DWORD sendSize = messageData->OverlappedSize();
+	int resultCode = 0;
+
+	auto overlapped = overlappedManager->Pop(Network::OperationType::OP_SEND);
+	overlapped->CopyFromMessageData(*messageData);
+
+	resultCode = ::WSASend(Socket,
+		&(overlapped->Wsabuf),
+		1,
+		&sendSize,
+		flags,
+		overlapped,
+		NULL);
+
+	if (resultCode == SOCKET_ERROR)
+	{
+		resultCode = ::WSAGetLastError();
+
+		if (resultCode != WSA_IO_PENDING)
+		{
+			std::cout << "WSASend failed with error code: " << resultCode << std::endl;
+			return;
+		}
+	}
+	std::cout << "Message sent successfully." << std::endl;
+}
 void ReceiveReady()
 {
 	auto overlapped = overlappedManager->Pop(Network::OperationType::OP_RECV);
@@ -149,6 +184,10 @@ static unsigned int WINAPI Work(void* pThis)
 	DWORD bytesTransferred;
 	ULONG_PTR completionKey;
 	Network::CustomOverlapped* overlapped = nullptr;
+	flatbuffers::FlatBufferBuilder builder;
+
+	char* outBuffer = nullptr;
+	int bufferSize = 0;
 
 	while (true)
 	{
@@ -195,9 +234,19 @@ static unsigned int WINAPI Work(void* pThis)
 				// 연결이 완료되었을 때
 				std::cout << "Connected to server successfully!" << std::endl;
 				ReceiveReady();
+				std::string serverName = "TestServer";
+				auto serverNameOffset = builder.CreateString(serverName);
+				builder.Finish(protocol::CreateREQUEST_REGISTER(builder, serverNameOffset));
 
-				//Utility::Log("Client", "ClientManager", "Client Connect !!");
-				//_acceptCallback(_serverType, client, overlapped);
+				Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_REQUEST_REGISTER);
+				std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+					completionKey,
+					header,
+					(char*)builder.GetBufferPointer()
+				);
+
+				MessageSend(messageData);
+			
 				break;
 			}
 
@@ -209,16 +258,76 @@ static unsigned int WINAPI Work(void* pThis)
 					continue;
 				}
 
-				std::cout << "Received data from server." << std::endl;
-				//Utility::Log("Client", "ClientManager", "Client Received !!");
-				//_receiveCallback(_serverType, completionKey, targetOverlapped);
+				messageBuilder.InsertMessage(overlapped->Wsabuf.buf, bytesTransferred);
+
+				int havingMessage = messageBuilder.MessageCheckAndReturn(outBuffer, bufferSize);
+				while(havingMessage == 1)
+				{
+					Network::MessageHeader header{ 0,0 };
+					
+					std::memcpy(&header, outBuffer, sizeof(Network::MessageHeader));
+					char* body = new char[header.BodySize];
+					std::memcpy(body, outBuffer + sizeof(Network::MessageHeader), header.BodySize);
+					int contents = static_cast<protocol::MESSAGETYPE>(header.ContentsType);
+
+					switch (contents)
+					{
+						case protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_REGISTER:
+						{
+							auto responseRegister = flatbuffers::GetRoot<protocol::RESPONSE_REGISTER>(body);
+
+							if (responseRegister == nullptr)
+							{
+								std::cout << "Invalid RESPONSE_REGISTER message." << std::endl;
+								break;
+							}
+
+							bool success = responseRegister->feedback();
+							if (success)
+							{
+								std::cout << "Registration successful." << std::endl;
+							}
+							else
+							{
+								std::cout << "Registration failed." << std::endl;
+							}
+							break;
+						}
+
+						case protocol::MESSAGETYPE::MESSAGETYPE_REQUEST_HEARTBEAT:
+						{
+							auto responseRegister = flatbuffers::GetRoot<protocol::REQUEST_HEARTBEAT>(body);
+							if (responseRegister == nullptr)
+							{
+								std::cout << "Invalid REQUEST_HEARTBEAT message." << std::endl;
+								break;
+							}
+
+							std::cout << "Received REQUEST_REGISTER message." << std::endl;
+
+							builder.Finish(protocol::CreateRESPONSE_HEARTBEAT(builder));
+
+							Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_HEARTBEAT);
+							std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+								completionKey,
+								header,
+								(char*)builder.GetBufferPointer()
+							);
+
+							MessageSend(messageData);
+							builder.Clear();
+							break;
+						}
+
+						std::cout << "Received message of type: " << contents << std::endl;
+					}
+
+				}
 				break;
 			}
 
 			case Network::OperationType::OP_SEND:
 			{
-				//Utility::Log("Client", "ClientManager", "Client Send !!");
-				//_sendCallback(overlapped);
 				break;
 			}
 
@@ -227,6 +336,5 @@ static unsigned int WINAPI Work(void* pThis)
 
 		overlapped->Clear();
 		overlappedManager->Push(overlapped);
-
 	}
 }

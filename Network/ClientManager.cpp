@@ -120,14 +120,15 @@ namespace Network
 	{
 		if (completionKey < _maxClient)
 		{
-			std::shared_ptr<Network::MessageData> messageData = std::make_shared<MessageData>(completionKey, (char*)_clientMap[completionKey]->GetReceiveMessage());
-
-			return messageData;
+			void* message = _clientMap[completionKey]->GetReceiveMessage();
+			if (message != nullptr)
+			{
+				std::shared_ptr<Network::MessageData> messageData = std::make_shared<MessageData>(completionKey, (char*)message);
+				return messageData;
+			}
 		}
-		else
-		{
-			return nullptr; 
-		}
+		
+		return nullptr;
 	}
 
 }

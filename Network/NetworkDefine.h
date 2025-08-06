@@ -88,7 +88,10 @@ namespace Network
                 {
                     CompletionKey = completionKey;
                     BodySize = Header.BodySize;
-                    Body = messageBuffer;
+
+                    Body = new char[BodySize];
+                    std::memcpy(Body, messageBuffer + sizeof(MessageHeader), BodySize);
+                    //Body = messageBuffer;
                     return;
                 }
             }
@@ -104,7 +107,7 @@ namespace Network
             CompletionKey = completionKey;
             BodySize = header.BodySize;
 			Header = header;
-
+			Body = new char[BodySize];
             std::memcpy(Body, body, BodySize);
         }
 
@@ -125,7 +128,7 @@ namespace Network
         CustomOverlapped()
         {
             CompletionKey = 0;
-            Wsabuf.len = 0;
+            Wsabuf.len = NET_DATA_BUFSIZE;
             Wsabuf.buf = Buffer;
             OperationType = OP_DEFAULT;
             this->hEvent = NULL;
@@ -142,7 +145,7 @@ namespace Network
         void Clear()
         {
 			std::memset(Wsabuf.buf, 0, sizeof(Wsabuf.len));
-            Wsabuf.len = 0;
+            Wsabuf.len = NET_DATA_BUFSIZE;
             OperationType = OP_DEFAULT;
             CompletionKey = 0;
             this->hEvent = NULL;

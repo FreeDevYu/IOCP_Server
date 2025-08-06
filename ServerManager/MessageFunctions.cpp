@@ -36,7 +36,10 @@ namespace Manager
 			if (success)
 			{
 				// 플레이어 등록
-				dulplicatePlayerChecker->second->Register(requestConnect->server_name()->str());
+				std::string serverName = requestConnect->server_name()->str();
+				dulplicatePlayerChecker->second->Register(serverName);
+
+				DebugLog(Debug::DEBUG_LOG, std::format("Player registered: {}", serverName));
 			}
 		}
 		

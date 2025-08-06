@@ -141,6 +141,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     serverManager.StartIOCP();
     serverManager.AddServerIP("127.0.0.1");
+    serverManager.RegistMessageDispatcher();
+
     serverManager.StartWorkThreads();
     serverManager.StartListenThread();
     serverManager.SetUpdateFrame(60); // FPS ¼³Á¤
