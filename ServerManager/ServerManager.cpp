@@ -166,7 +166,7 @@ namespace Manager
 
 			// 새로운 플레이어 추가
 			Manager::Player* newPlayer = new Manager::Player();
-			newPlayer->Initialize(completionKey, timeGetTime());
+			newPlayer->Initialize(completionKey, timeGetTime(), _debugLogCallback);
 			_playerMap.insert({ completionKey, newPlayer });
 
 			handleReturnCode = CreateIoCompletionPort(

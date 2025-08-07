@@ -66,6 +66,5 @@ namespace Manager
 		std::unordered_map<std::string, std::function<void(const std::string&)>> _commandMap;
 
 		void SettingExternalCommands();
-
 	};
 }

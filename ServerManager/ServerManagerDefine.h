@@ -22,7 +22,7 @@ namespace Manager
 
         void SetHeartBeatInterval(DWORD interval) { _interval = interval * TIMEUNIT_SECOND; }
         void SetHeartBeatTimeout(DWORD timeout) { _timeout = timeout * TIMEUNIT_SECOND; }
-        void SetHeartBeatMaxCount(DWORD maxCount) { _maxCount = maxCount * TIMEUNIT_SECOND; }
+        void SetHeartBeatMaxCount(DWORD maxCount) { _maxCount = maxCount; }
 		void SetRegisterWaitTime(DWORD waitTime) { _registerWaitTime = waitTime * TIMEUNIT_SECOND; }
 
     private:

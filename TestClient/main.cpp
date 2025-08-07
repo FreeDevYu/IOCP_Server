@@ -301,7 +301,7 @@ static unsigned int WINAPI Work(void* pThis)
 							break;
 						}
 
-						std::cout << "Received REQUEST_REGISTER message." << std::endl;
+						std::cout << "Received REQUEST_HEARTBEAT message." << std::endl;
 
 						flatbuffers::FlatBufferBuilder builder;
 						builder.Finish(protocol::CreateRESPONSE_HEARTBEAT(builder));
@@ -313,7 +313,7 @@ static unsigned int WINAPI Work(void* pThis)
 							(char*)builder.GetBufferPointer()
 						);
 
-						MessageSend(messageData);
+						//MessageSend(messageData); -> 오프라인테스트용 주석처리
 						builder.Clear();
 						break;
 					}

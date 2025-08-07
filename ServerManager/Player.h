@@ -2,6 +2,7 @@
 #include <string>
 #include <atomic>
 #include <WinSock2.h>
+#include <functional>
 
 namespace Manager
 {
@@ -24,7 +25,7 @@ namespace Manager
 		~Player();
 
 	public:
-		void Initialize(const DWORD completionKey, const DWORD registerTime);
+		void Initialize(const DWORD completionKey, const DWORD registerTime, std::function<void(const std::string&, const std::string&)> debugLogCallback);
 		void Register(const std::string& serverName);
 		DWORD GetCompletionKey() const;
 		std::string GetServerName() const;
@@ -39,13 +40,16 @@ namespace Manager
 		DWORD _lastRequestTime; // 마지막 HEARTBEAT 응답 시간
 		DWORD _lastResponseTime; // 마지막 HEARTBEAT 응답 시간
 
-
+		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
 	public:
 
 		bool IsHeartbeatTarget() const;
 		bool CheckKickoutTarget(DWORD currentTime);
 		void SaveRequestHearbeatTime();
 		void ResponseHeartBeat();
+		
+	private:
+		void DebugLog(const std::string& type, const std::string& message);
 		
 	};
 

@@ -26,9 +26,6 @@ namespace Manager
 				// 플레이어가 오프라인 상태로 변경되었을 때 처리
 				DebugLog(Debug::DEBUG_LOG, std::format("Player is offline: {}", player->GetServerName()));
 
-				//_clientManager->RemoveClient(player->GetCompletionKey());
-				//delete player; // 메모리 해제
-				//_playerMap.erase(it); // 플레이어 맵에서 제거
 			}
 			
 		}
@@ -89,8 +86,10 @@ namespace Manager
 		if (_serverStatus == ServerStatus::REQUEST && _lastRequestTime + Manager::ServerManagerDefine::Instance().GetHeartBeatTimeout() < currentTime)
 		{
 			_timeOutCount++;
-			_serverStatus = ServerStatus::TIMEOUT; // 서버 상태를 OFFLINE으로 변경
+			_serverStatus = ServerStatus::TIMEOUT; // RESPONSE로 해도 괜찮을듯
 
+			//Manager::ServerManager::DebugLog(Debug::DEBUG_LOG, std::format("Player {} is in TIMEOUT state. Timeout count: {}", _serverName, _timeOutCount));
+			DebugLog("DEBUG_LOG", std::format("Player {} is in TIMEOUT state. Timeout count: {}", _serverName, _timeOutCount));
 			if (_timeOutCount > Manager::ServerManagerDefine::Instance().GetHeartBeatMaxCount())
 			{
 				_serverStatus = ServerStatus::OFFLINE; // 최대 타임아웃 횟수 초과 시 OFFLINE 상태로 변경
