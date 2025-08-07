@@ -6,7 +6,10 @@
 #include "oneTBB/include/oneapi/tbb/concurrent_map.h"
 #include "ServerManagerDefine.h"
 #include "Player.h"
-#include <curl/curl.h>
+#include <winhttp.h>
+
+
+
 
 namespace Manager
 {

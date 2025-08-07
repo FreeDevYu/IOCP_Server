@@ -1,3 +1,5 @@
+#pragma comment(lib, "winhttp.lib")
+
 #include "ServerManager.h"
 #include "ServerManagerDefine.h"
 
@@ -323,37 +325,58 @@ namespace Manager
 		_debugLogCallback(typeString, message);
 	}
 
+
 	void ServerManager::SendTelegramMessage(const std::string& message)
 	{
-		std::string token = "8470620144:AAHYPfRumJvLjo7tEBR0OknoLF0Wz-ed3io"; std::string chatId = "8349626032";
+		int size_needed = MultiByteToWideChar(CP_UTF8, 0, message.c_str(), (int)message.size(), NULL, 0);
+		std::wstring wstr(size_needed, 0);
+		MultiByteToWideChar(CP_UTF8, 0, message.c_str(), (int)message.size(), &wstr[0], size_needed);
 
-		CURL* curl = curl_easy_init();
-		if (curl) 
+
+
+
+		std::wstring token = L"8470620144:AAHYPfRumJvLjo7tEBR0OknoLF0Wz-ed3io";
+		std::wstring chatId = L"8349626032";
+
+		std::wstring host = L"api.telegram.org";
+		std::wstring path = L"/bot" + token + L"/sendMessage?chat_id=" + chatId + L"&text=" + wstr;
+
+		HINTERNET hSession = WinHttpOpen(L"TelegramBot/1.0",
+			WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			WINHTTP_NO_PROXY_NAME,
+			WINHTTP_NO_PROXY_BYPASS, 0);
+
+		HINTERNET hConnect = WinHttpConnect(hSession, host.c_str(),
+			INTERNET_DEFAULT_HTTPS_PORT, 0);
+
+		HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", path.c_str(),
+			NULL, WINHTTP_NO_REFERER,
+			WINHTTP_DEFAULT_ACCEPT_TYPES,
+			WINHTTP_FLAG_SECURE);
+
+		BOOL bResult = WinHttpSendRequest(hRequest,
+			WINHTTP_NO_ADDITIONAL_HEADERS, 0,
+			WINHTTP_NO_REQUEST_DATA, 0,
+			0, 0);
+
+		if (bResult)
+			WinHttpReceiveResponse(hRequest, NULL);
+
+		// 간단한 응답 확인
+		DWORD dwSize = 0;
+		WinHttpQueryDataAvailable(hRequest, &dwSize);
+		if (dwSize > 0)
 		{
-			std::string url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatId + "&text=";
-
-			char* escapedMessage = curl_easy_escape(curl, message.c_str(), message.length());
-			url += escapedMessage;
-			curl_free(escapedMessage);
-
-			//DebugLog(Debug::DEBUG_LOG, std::format("Telegram URL: {}", url));
-
-			curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-
-			CURLcode res = curl_easy_perform(curl);
-			if (res == CURLE_OK) {
-				DebugLog(Debug::DEBUG_LOG, std::format("SendTelegramMessage: {}", message));
-			}
-			else {
-				DebugLog(Debug::DEBUG_ERROR, std::format("SendTelegramMessage failed: {}", curl_easy_strerror(res)));
-			}
-
-			curl_easy_cleanup(curl);
+			std::wstring response(dwSize, L'\0');
+			DWORD dwDownloaded = 0;
+			WinHttpReadData(hRequest, &response[0], dwSize, &dwDownloaded);
+			wprintf(L"Telegram Response: %s\n", response.c_str());
 		}
+
+		WinHttpCloseHandle(hRequest);
+		WinHttpCloseHandle(hConnect);
+		WinHttpCloseHandle(hSession);
 	}
 
-	
 
 }
