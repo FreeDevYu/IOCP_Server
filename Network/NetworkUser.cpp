@@ -75,7 +75,7 @@ namespace Network
 		_messageBuilder->InsertMessage(message, size);
 	}
 
-	void* NetworkUser::GetReceiveMessage()
+	std::shared_ptr<Network::MessageData> NetworkUser::GetReceiveMessage()
 	{
 		if (IsOnline())
 		{
@@ -85,18 +85,21 @@ namespace Network
 				return nullptr;
 			}
 
-			char* outBuffer = nullptr;
-			int bufferSize = 0;
+			// 여기서 메세지데이터를 가져온다.
 
-			int feedback = _messageBuilder->MessageCheckAndReturn(outBuffer, bufferSize);
+			Network::MessageHeader header{ 0,0 };
+			char* bodyBuffer = nullptr;
 
-			if (feedback == NETWORK_ERROR || bufferSize < sizeof(MessageHeader))
+			int feedback = _messageBuilder->MessageCheckAndReturn(header, bodyBuffer);
+
+			if (feedback == NETWORK_ERROR)
 			{
 				//sc::writeLogError(std::string("CNetUser::GetReceiveMessage MessageCheckAndReturn failed"));
 				return nullptr;
 			}
 
-			return outBuffer;
+	
+			return  std::make_shared<Network::MessageData>(_completionKey,header,bodyBuffer);
 		}
 		
 		return nullptr;

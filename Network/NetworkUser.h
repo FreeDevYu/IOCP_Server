@@ -31,7 +31,7 @@ namespace Network
 		DWORD GetCompletionKey() const;
 
 		int AddMessage(void* message, DWORD size);
-		void* GetReceiveMessage();
+		std::shared_ptr<Network::MessageData> GetReceiveMessage();
 
 		inline bool IsOnline() { return _socket == INVALID_SOCKET ? false : true; }
 

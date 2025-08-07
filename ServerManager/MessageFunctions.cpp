@@ -39,7 +39,7 @@ namespace Manager
 				std::string serverName = requestConnect->server_name()->str();
 				dulplicatePlayerChecker->second->Register(serverName);
 
-				DebugLog(Debug::DEBUG_LOG, std::format("Player registered: {}", serverName));
+				DebugLog(Debug::DEBUG_LOG, std::format("Receive [REQUEST_REGISTER] {}", serverName));
 			}
 		}
 		
@@ -54,6 +54,7 @@ namespace Manager
 		);
 
 		SendMessageToClient(completionKey, messageData);
+		DebugLog(Debug::DEBUG_LOG, std::format("Send [RESPONSE REGISTER] for player: {}", networkUser->GetIpAddress()));
 	}
 
 	void ServerManager::RESPONSE_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
@@ -95,5 +96,7 @@ namespace Manager
 			return; // 해당 플레이어가 존재하지 않음
 
 		_playerMap[completionKey]->SaveRequestHearbeatTime();
+
+		DebugLog(Debug::DEBUG_LOG, std::format("Receive [RESPONSE_HEARTBEAT] from player: {}", _playerMap[completionKey]->GetServerName()));
 	}
 }

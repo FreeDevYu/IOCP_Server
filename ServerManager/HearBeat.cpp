@@ -4,7 +4,7 @@ namespace Manager
 {
 	void ServerManager::PlayerOnlineCheck(DWORD currentTime)
 	{
-		int offlineCheck = 0;
+		bool offlineCheck = false;
 		int size = _playerMap.size();
 		for (int i = 0;i < size; ++i)
 		{
@@ -12,9 +12,11 @@ namespace Manager
 			std::advance(it, i);
 			if (it == _playerMap.end())
 				break;
+
 			auto player = it->second;
 			if (player == nullptr)
 				continue;
+
 			if (!player->IsHeartbeatTarget())
 				continue;
 
@@ -31,7 +33,7 @@ namespace Manager
 			
 		}
 
-		DebugLog(Debug::DEBUG_LOG, "PlayerOnlineCheck Complete");
+		//DebugLog(Debug::DEBUG_LOG, "PlayerOnlineCheck Complete"); -> 너무많이 호출되어 주석처리
 	}
 
 	void ServerManager::ProcessHeartBeat()
@@ -54,7 +56,16 @@ namespace Manager
 				continue;
 
 			player->SaveRequestHearbeatTime();
-			_clientManager->AddMessageToClient(player->GetCompletionKey(), builder.GetBufferPointer(), builder.GetSize());
+
+			Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_REQUEST_HEARTBEAT);
+			std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+				player->GetCompletionKey(),
+				header,
+				(char*)builder.GetBufferPointer()
+			);
+
+			SendMessageToClient(player->GetCompletionKey(), messageData);
+			DebugLog(Debug::DEBUG_LOG, std::format("SEND [REQUEST HEARTBEAT] To Player {}.", player->GetServerName()));
 		}
 
 		DebugLog(Debug::DEBUG_LOG, "ProcessHeartBeat");
@@ -106,5 +117,6 @@ namespace Manager
 
 		_serverStatus = ServerStatus::RESPONSE;
 		_lastResponseTime = GetTickCount();;
+		_timeOutCount = 0;
 	}
 } 

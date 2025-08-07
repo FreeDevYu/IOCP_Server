@@ -240,7 +240,7 @@ namespace Manager
 			int remainingTime = _updateWaitTime - offset;// 원래	 업데이트 대기 시간에서 현재 경과 시간을 뺍니다.들쭉날쭉한 처리시간에서 프레임마다 루프 주기를 지키기 위함.
 			if (remainingTime < 0)
 				remainingTime = 0;
-
+			
 			quitEventResult = WaitForSingleObject(_updateQuitEvent, remainingTime);
 
 			if (quitEventResult == WAIT_OBJECT_0)
@@ -249,38 +249,18 @@ namespace Manager
 				// 업데이트 스레드가 종료 요청을 받았을 때 처리합니다.
 				break;
 			}
-
-			// 업데이트 작업을 수행합니다.
-
+			
 			RecvMessageProcess();
 
-		//	if (timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
-		//	{
-		//		ProcessHeartBeat();
-		//		lastHeartbeatTime = timeGetTime();
-		//	}
-		//	else
-		//	{
-		//		//너무 많이호출되어 임시 주석처리
-		//		//PlayerOnlineCheck(currentTime);
-		//	}
-
-		//	else if (quitEventResult == WAIT_TIMEOUT)
-		//	{
-		//		// 업데이트 작업을 수행합니다.
-		//
-		//		RecvMessageProcess();
-		//
-		//		if(timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
-		//		{
-		//			ProcessHeartBeat();
-		//			lastHeartbeatTime = timeGetTime();
-		//		}
-		//		else
-		//		{
-		//			PlayerOnlineCheck(currentTime);
-		//		}
-		//	}
+			if (timeGetTime() - lastHeartbeatTime >= Manager::ServerManagerDefine::Instance().GetHeartBeatInterval())
+			{
+				ProcessHeartBeat();
+				lastHeartbeatTime = timeGetTime();
+			}
+			else
+			{
+				PlayerOnlineCheck(currentTime);
+			}
 		}
 
 		return NETWORK_OK;

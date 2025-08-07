@@ -37,7 +37,7 @@ namespace Network
 		return NETWORK_OK;
 	}
 
-	int MessageBuilder::MessageCheckAndReturn(char*& outBuffer, int& bufferSize)
+	int MessageBuilder::MessageCheckAndReturn(Network::MessageHeader& header, char*& bodyBuffer)
 	{
 		int headerSize = sizeof(MessageHeader);
 	
@@ -46,30 +46,30 @@ namespace Network
 			return NETWORK_ERROR; // 버퍼에 메시지가 없다.
 		}
 
-		MessageHeader header{ 0,0 };
+		LockOn();
+
 		std::memcpy(&header, _buffer, sizeof(MessageHeader));
 
 		if(header.BodySize <= 0 || header.BodySize > NET_DATA_BUFSIZE)
 		{
+			LockOff();
 			return NETWORK_ERROR; // header캐스팅에 실패하였거나 메시지 크기가 0 이다.
 		}
 		
 		int resultSize = headerSize + header.BodySize;
 		if (_bufferSize < resultSize)
 		{
+			LockOff();
 			return NETWORK_ERROR; // 전체 메시지가 아직 도착하지 않음
 		}
 
-		LockOn();
+		bodyBuffer = new char[header.BodySize];
 
-		outBuffer = new char[resultSize];
-		bufferSize = resultSize;
-		std::memcpy(outBuffer, _buffer, bufferSize);
+		std::memcpy(bodyBuffer, _buffer + sizeof(MessageHeader), header.BodySize);
+		int sliceSize = sizeof(MessageHeader) + header.BodySize;
+		_bufferSize -= sliceSize;
 
-		int rebalanceSize = _bufferSize - bufferSize;
-		_bufferSize -= bufferSize;
-
-		std::memmove(_buffer, _buffer + resultSize, rebalanceSize);
+		std::memmove(_buffer, _buffer + resultSize, _bufferSize);
 
 		LockOff();
 

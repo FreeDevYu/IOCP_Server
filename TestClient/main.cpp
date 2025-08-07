@@ -184,10 +184,9 @@ static unsigned int WINAPI Work(void* pThis)
 	DWORD bytesTransferred;
 	ULONG_PTR completionKey;
 	Network::CustomOverlapped* overlapped = nullptr;
-	flatbuffers::FlatBufferBuilder builder;
 
-	char* outBuffer = nullptr;
-	int bufferSize = 0;
+	Network::MessageHeader header{ 0,0 };
+	char* bodyBuffer = nullptr;
 
 	while (true)
 	{
@@ -197,7 +196,6 @@ static unsigned int WINAPI Work(void* pThis)
 
 		bool result = GetQueuedCompletionStatus(IocpHandle, &bytesTransferred, &completionKey, reinterpret_cast<LPOVERLAPPED*>(&overlapped), INFINITE); 
 
-		std::cout << "GetQueuedCompletionStatus called." << std::endl;
 		if (!result)
 		{
 			int errorCode = WSAGetLastError();
@@ -234,6 +232,8 @@ static unsigned int WINAPI Work(void* pThis)
 				// 연결이 완료되었을 때
 				std::cout << "Connected to server successfully!" << std::endl;
 				ReceiveReady();
+
+				flatbuffers::FlatBufferBuilder builder;
 				std::string serverName = "TestServer";
 				auto serverNameOffset = builder.CreateString(serverName);
 				builder.Finish(protocol::CreateREQUEST_REGISTER(builder, serverNameOffset));
@@ -258,70 +258,68 @@ static unsigned int WINAPI Work(void* pThis)
 					continue;
 				}
 
+				ReceiveReady();
+
 				messageBuilder.InsertMessage(overlapped->Wsabuf.buf, bytesTransferred);
 
-				int havingMessage = messageBuilder.MessageCheckAndReturn(outBuffer, bufferSize);
-				while(havingMessage == 1)
+				int havingMessage = messageBuilder.MessageCheckAndReturn(header, bodyBuffer);
+				
+				if (havingMessage == 1)
 				{
-					Network::MessageHeader header{ 0,0 };
-					
-					std::memcpy(&header, outBuffer, sizeof(Network::MessageHeader));
-					char* body = new char[header.BodySize];
-					std::memcpy(body, outBuffer + sizeof(Network::MessageHeader), header.BodySize);
 					int contents = static_cast<protocol::MESSAGETYPE>(header.ContentsType);
 
 					switch (contents)
 					{
-						case protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_REGISTER:
+					case protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_REGISTER:
+					{
+						auto responseRegister = flatbuffers::GetRoot<protocol::RESPONSE_REGISTER>(bodyBuffer);
+
+						if (responseRegister == nullptr)
 						{
-							auto responseRegister = flatbuffers::GetRoot<protocol::RESPONSE_REGISTER>(body);
-
-							if (responseRegister == nullptr)
-							{
-								std::cout << "Invalid RESPONSE_REGISTER message." << std::endl;
-								break;
-							}
-
-							bool success = responseRegister->feedback();
-							if (success)
-							{
-								std::cout << "Registration successful." << std::endl;
-							}
-							else
-							{
-								std::cout << "Registration failed." << std::endl;
-							}
+							std::cout << "Invalid RESPONSE_REGISTER message." << std::endl;
 							break;
 						}
 
-						case protocol::MESSAGETYPE::MESSAGETYPE_REQUEST_HEARTBEAT:
+						bool success = responseRegister->feedback();
+						if (success)
 						{
-							auto responseRegister = flatbuffers::GetRoot<protocol::REQUEST_HEARTBEAT>(body);
-							if (responseRegister == nullptr)
-							{
-								std::cout << "Invalid REQUEST_HEARTBEAT message." << std::endl;
-								break;
-							}
-
-							std::cout << "Received REQUEST_REGISTER message." << std::endl;
-
-							builder.Finish(protocol::CreateRESPONSE_HEARTBEAT(builder));
-
-							Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_HEARTBEAT);
-							std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
-								completionKey,
-								header,
-								(char*)builder.GetBufferPointer()
-							);
-
-							MessageSend(messageData);
-							builder.Clear();
-							break;
+							std::cout << "Registration successful." << std::endl;
 						}
-
-						std::cout << "Received message of type: " << contents << std::endl;
+						else
+						{
+							std::cout << "Registration failed." << std::endl;
+						}
+						break;
 					}
 
+					case protocol::MESSAGETYPE::MESSAGETYPE_REQUEST_HEARTBEAT:
+					{
+						auto responseRegister = flatbuffers::GetRoot<protocol::REQUEST_HEARTBEAT>(bodyBuffer);
+						if (responseRegister == nullptr)
+						{
+							std::cout << "Invalid REQUEST_HEARTBEAT message." << std::endl;
+							break;
+						}
+
+						std::cout << "Received REQUEST_REGISTER message." << std::endl;
+
+						flatbuffers::FlatBufferBuilder builder;
+						builder.Finish(protocol::CreateRESPONSE_HEARTBEAT(builder));
+
+						Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_HEARTBEAT);
+						std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+							completionKey,
+							header,
+							(char*)builder.GetBufferPointer()
+						);
+
+						MessageSend(messageData);
+						builder.Clear();
+						break;
+					}
+
+					std::cout << "Received message of type: " << contents << std::endl;
+					}
 				}
 				break;
 			}

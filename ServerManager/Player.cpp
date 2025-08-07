@@ -22,6 +22,7 @@ namespace Manager
 		_completionKey = completionKey;
 		_registerTime = registerTime;
 		_serverStatus = ServerStatus::NOT_REGIST; // 초기 상태는 ONLINE로 설정
+		_timeOutCount = 0;
 	}
 
 	void Player::Register(const std::string& serverName)

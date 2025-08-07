@@ -11,7 +11,7 @@ namespace Network
 		~MessageBuilder();
 
 		int InsertMessage(void* message, int size);
-		int MessageCheckAndReturn(char*& outBuffer, int& bufferSize);
+		int MessageCheckAndReturn(Network::MessageHeader& header, char*& bodyBuffer);
 
 	private:
 		char* _buffer;
