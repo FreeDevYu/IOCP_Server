@@ -3,10 +3,13 @@
 #include "../Network/NetworkConfig.h"
 #include "../MyGUI/DeveloperConsole.h"
 
+
 //#define CONFGINTEST
 
 #define OK			  1
 #define ERROR		 -1
+
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -187,6 +190,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     return 0;
 }
 
-
-// 출력체크
-// 클라이언트테스트 간단하게...

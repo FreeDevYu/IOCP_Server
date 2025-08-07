@@ -6,6 +6,7 @@
 #include "oneTBB/include/oneapi/tbb/concurrent_map.h"
 #include "ServerManagerDefine.h"
 #include "Player.h"
+#include <curl/curl.h>
 
 namespace Manager
 {
@@ -38,14 +39,6 @@ namespace Manager
 
 	private:
 		void REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-		void RESPONSE_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-
-		void REQUEST_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-		void RESPONSE_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-
-		void NOTICE_KICK(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-
-		void REQUEST_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
 	private:
@@ -66,5 +59,6 @@ namespace Manager
 		std::unordered_map<std::string, std::function<void(const std::string&)>> _commandMap;
 
 		void SettingExternalCommands();
+		void SendTelegramMessage(const std::string& message);
 	};
 }

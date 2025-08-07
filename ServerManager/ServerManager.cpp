@@ -1,6 +1,7 @@
 #include "ServerManager.h"
 #include "ServerManagerDefine.h"
 
+
 namespace Manager
 {
 
@@ -321,4 +322,38 @@ namespace Manager
 		std::string typeString = Debug::EnumNamesDebugType()[debugtype]; // Ensure debugtype is valid
 		_debugLogCallback(typeString, message);
 	}
+
+	void ServerManager::SendTelegramMessage(const std::string& message)
+	{
+		std::string token = "8470620144:AAHYPfRumJvLjo7tEBR0OknoLF0Wz-ed3io"; std::string chatId = "8349626032";
+
+		CURL* curl = curl_easy_init();
+		if (curl) 
+		{
+			std::string url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatId + "&text=";
+
+			char* escapedMessage = curl_easy_escape(curl, message.c_str(), message.length());
+			url += escapedMessage;
+			curl_free(escapedMessage);
+
+			//DebugLog(Debug::DEBUG_LOG, std::format("Telegram URL: {}", url));
+
+			curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+
+			CURLcode res = curl_easy_perform(curl);
+			if (res == CURLE_OK) {
+				DebugLog(Debug::DEBUG_LOG, std::format("SendTelegramMessage: {}", message));
+			}
+			else {
+				DebugLog(Debug::DEBUG_ERROR, std::format("SendTelegramMessage failed: {}", curl_easy_strerror(res)));
+			}
+
+			curl_easy_cleanup(curl);
+		}
+	}
+
+	
+
 }

@@ -40,6 +40,7 @@ namespace Manager
 				dulplicatePlayerChecker->second->Register(serverName);
 
 				DebugLog(Debug::DEBUG_LOG, std::format("Receive [REQUEST_REGISTER] {}", serverName));
+				SendTelegramMessage(std::format("Receive REQUEST_REGISTER from player {}", serverName));
 			}
 		}
 		
@@ -55,31 +56,6 @@ namespace Manager
 
 		SendMessageToClient(completionKey, messageData);
 		DebugLog(Debug::DEBUG_LOG, std::format("Send [RESPONSE REGISTER] for player: {}", networkUser->GetIpAddress()));
-	}
-
-	void ServerManager::RESPONSE_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
-	{
-
-	}
-
-	void ServerManager::REQUEST_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
-	{
-		//completionkey를 통해 메세지 생성후 메세지큐에 직접넣기.
-	}
-	void ServerManager::RESPONSE_DISCONNECT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
-	{
-
-	}
-
-	void ServerManager::NOTICE_KICK(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
-	{
-
-	}
-
-	void ServerManager::REQUEST_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
-	{
-
-
 	}
 
 	void ServerManager::RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
@@ -98,5 +74,6 @@ namespace Manager
 		_playerMap[completionKey]->SaveRequestHearbeatTime();
 
 		DebugLog(Debug::DEBUG_LOG, std::format("Receive [RESPONSE_HEARTBEAT] from player: {}", _playerMap[completionKey]->GetServerName()));
+		SendTelegramMessage(std::format("Receive RESPONSE_HEARTBEAT from player {}", _playerMap[completionKey]->GetServerName()));
 	}
 }
