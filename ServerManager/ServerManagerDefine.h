@@ -15,6 +15,13 @@ namespace Manager
             return instance;
         }
 
+		int GetOverlappedCount() const { return _overlappedCount; }
+		int GetMaxClient() const { return _maxClient; }
+
+		void SetOverlappedCount(int count) { _overlappedCount = count; }
+		void SetMaxClient(int maxClient) { _maxClient = maxClient; }
+
+
         DWORD GetHeartBeatInterval() const { return _interval; }
         DWORD GetHeartBeatTimeout() const { return _timeout; }
         DWORD GetHeartBeatMaxCount() const { return _maxCount; }
@@ -32,6 +39,9 @@ namespace Manager
         ServerManagerDefine& operator=(const ServerManagerDefine&) = delete;
 
     private:
+        int _overlappedCount;
+        int _maxClient;
+
         DWORD _interval;
         DWORD _timeout;
         DWORD _maxCount;

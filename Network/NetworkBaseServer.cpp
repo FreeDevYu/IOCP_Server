@@ -12,12 +12,8 @@ namespace Network
 
 	}
 
-	void NetworkBaseServer::Initialize(Network::ClientManager* clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName, int overlappedCount, int maxClient)
+	void NetworkBaseServer::Initialize(int maxClient, int overlappedCount)
 	{
-		_serverOn = true;
-		_serverPort = serverPort;
-		_hostName = hostName;
-
 		// CPU °¹¼ö
 		SYSTEM_INFO sysInfo;
 		GetSystemInfo(&sysInfo);
@@ -33,15 +29,12 @@ namespace Network
 
 		_maxClient = maxClient;
 
-		if (clientManager == nullptr)
-			clientManager = new ClientManager();
-
-		_clientManager = clientManager;
+		_clientManager = new ClientManager();
 		_clientManager->InitializeBase(maxClient);
 
-		_overlappedManager = overlappedManager;
+		_overlappedManager = new OverlappedManager();
 
-		DebugLog(Debug::DEBUG_LOG, std::format("NetworkBaseServer Initialize: ServerPort = {}, HostName = {}, MaxClient = {}", serverPort, hostName, maxClient));
+		DebugLog(Debug::DEBUG_LOG, std::format("NetworkBaseServer Initialized: MaxClient = {}, OverlappedCount = {}", _maxClient, overlappedCount));
 	}
 
 	int NetworkBaseServer::StartIOCP()

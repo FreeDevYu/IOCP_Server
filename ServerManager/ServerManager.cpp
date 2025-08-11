@@ -17,6 +17,56 @@ namespace Manager
 		int a = 5;
 	}
 
+	int ServerManager::PowerOnSequence()
+	{
+		// 서버 시작 시 초기화 작업을 수행합니다.
+		// 예를 들어, IOCP 핸들 생성, 소켓 설정 등을 수행할 수 있습니다.
+
+		SettingExternalCommands();
+		DebugLog(Debug::DEBUG_LOG, "ServerManager PowerOnSequence called.");
+		_powerOnEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+
+		while (true)
+		{
+			DebugLog(Debug::DEBUG_LOG, "Please Input Server Port... (ex-> Port[9090]");
+			WaitForSingleObject(_powerOnEvent, INFINITE);
+			ResetEvent(_powerOnEvent); // 이벤트 리셋
+
+			if (_serverPort == 0)
+				continue;// 포트가 설정되지 않은 경우 계속 입력을 받습니다.
+
+			Sleep(1000); // 1초 대기	
+
+			DebugLog(Debug::DEBUG_LOG, "Please Input Server Name... (ex-> name[SeverManager]");
+			WaitForSingleObject(_powerOnEvent, INFINITE);
+			ResetEvent(_powerOnEvent); // 이벤트 리셋
+
+			if (_hostName == "")
+				continue; // 호스트 이름이 설정되지 않은 경우 계속 입력을 받습니다.
+
+			DebugLog(Debug::DEBUG_LOG, std::format("ServerManager PowerOnSequence: ServerPort = {}, HostName = {}", _serverPort, _hostName));
+			break;
+		}
+
+		int maxClient = Manager::ServerManagerDefine::Instance().GetMaxClient();
+		int overlappedCount = Manager::ServerManagerDefine::Instance().GetOverlappedCount();
+		Initialize(maxClient, overlappedCount);
+
+		StartIOCP();
+
+		_serverIpSet.insert("127.0.0.1");
+		//AddConnectPermissionIp("127.0.0.1");
+		RegistMessageDispatcher();
+
+		StartWorkThreads();
+		StartListenThread();
+		SetUpdateFrame(60); // FPS 설정
+		StartUpdateThread();
+		_serverOn = true;
+
+		return NETWORK_OK;
+	}
+
 	int ServerManager::WorkProcess()
 	{
 		// 작업 스레드에서 처리할 작업을 구현합니다.

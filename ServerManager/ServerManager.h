@@ -19,7 +19,11 @@ namespace Manager
 		ServerManager();
 		~ServerManager() override;
 
+	private:
+		HANDLE _powerOnEvent; // 서버 시작 시 초기화 작업을 위한 이벤트 핸들
 	public:
+		int PowerOnSequence() override; // 서버 시작 시 초기화 작업을 수행합니다.
+
 		int	WorkProcess() override;
 		int	AcceptProcess() override;
 		int	UpdateProcess() override;
@@ -31,7 +35,10 @@ namespace Manager
 		void ReadMessage(std::shared_ptr<Network::MessageData> messageData);
 
 	public:
-		void AddServerIP(const std::string& ip);
+		//External Command
+		void GetServerPort(std::vector<std::string> parameter);
+		void GetServerName(std::vector<std::string> parameter);
+		void AddConnectPermissionIp(std::vector<std::string> parameter);
 
 	private:
 		bool CheckServerIP(const std::string& ip) const;
@@ -56,10 +63,10 @@ namespace Manager
 		void SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback);
 
 	public:
-		void ReceiveExternalCommand(const std::string& command) override;
+		void ReceiveExternalCommand(std::string& command) override;
 
 	private:
-		std::unordered_map<std::string, std::function<void(const std::string&)>> _commandMap;
+		std::unordered_map<std::string, std::function<void(const std::vector<std::string>)>> _commandMap;
 
 		void SettingExternalCommands();
 		void SendTelegramMessage(const std::string& message);

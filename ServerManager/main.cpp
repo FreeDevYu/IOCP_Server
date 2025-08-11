@@ -112,11 +112,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
             else 
             {
-                serverManager.ReceiveExternalCommand(command);
+				std::string commandCopy = command;
+                serverManager.ReceiveExternalCommand(commandCopy);
             }
         }
     );
     int tmp = config["HEARTBEAT_TIMEOUT"].get<int>();
+
+	Manager::ServerManagerDefine::Instance().SetOverlappedCount(config["OVERLAPPED_COUNT_MAX"].get<int>());
+	Manager::ServerManagerDefine::Instance().SetMaxClient(config["CLIENT_CAPACITY"].get<int>());
 
 	Manager::ServerManagerDefine::Instance().SetHeartBeatInterval(config["HEARTBEAT_INTERVAL"].get<int>());
 	Manager::ServerManagerDefine::Instance().SetHeartBeatTimeout(config["HEARTBEAT_TIMEOUT"].get<int>());
@@ -124,15 +128,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	Manager::ServerManagerDefine::Instance().SetRegisterWaitTime(config["REGISTER_TIMEOUT"].get<int>());
 
-
-    serverManager.Initialize(
-        new Network::ClientManager(),
-        new Network::OverlappedManager(),
-        config["SERVER_PORT"].get<int>(),
-        config["IP"].get<std::string>(),
-        config["OVERLAPPED_COUNT_MAX"].get<int>(),
-        config["CLIENT_CAPACITY"].get<int>()
-    );
 
     std::string settingMessage = std::format(
         "HEARTBEAT INTERVAL = {}, HEARTBEAT TIMEOUT = {}, HEARTBEAT TIMEOUT LIFE = {}, REGISTER TIMEOUT = {}",
@@ -143,14 +138,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     console.AddMessage("Setting", settingMessage);
 
-    serverManager.StartIOCP();
-    serverManager.AddServerIP("127.0.0.1");
-    serverManager.RegistMessageDispatcher();
+    std::thread serverPoewrOnThread(
+        [&serverManager]() {
+            serverManager.PowerOnSequence();
+        }
+	);
 
-    serverManager.StartWorkThreads();
-    serverManager.StartListenThread();
-    serverManager.SetUpdateFrame(60); // FPS ¼³Á¤
-    serverManager.StartUpdateThread();
+    serverPoewrOnThread.detach();
 
 
 

@@ -68,8 +68,8 @@ namespace Network
 		Network::ClientManager* _clientManager;
 		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
 
-	public:
-		void Initialize(Network::ClientManager*  clientManager, Network::OverlappedManager* overlappedManager, int serverPort, std::string hostName,int overlappedCount, int maxClient);
+	protected:
+		void Initialize(int maxClient, int overlappedCount);
 		int StartIOCP();
 
 		int StartWorkThreads();
@@ -85,6 +85,7 @@ namespace Network
 		Network::NetworkUser* GetNetworkUser(DWORD completionKey);
 
 	public:
+		virtual int PowerOnSequence() = 0;
 		virtual int RegistMessageDispatcher();
 		virtual int	WorkProcess() = 0;
 		virtual int	AcceptProcess() = 0;
@@ -92,7 +93,7 @@ namespace Network
 
 	protected:
 		virtual void DebugLog(Debug::DebugType debugtype, const std::string& message) = 0;
-		virtual void ReceiveExternalCommand(const std::string& command) = 0;
+		virtual void ReceiveExternalCommand(std::string& command) = 0;
 	};
 
 	static unsigned int WINAPI WorkThreadProcess(void* pThis)
