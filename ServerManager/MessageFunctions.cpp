@@ -71,7 +71,7 @@ namespace Manager
 		if (finder == serverManager->_playerMap.end())
 			return; // 해당 플레이어가 존재하지 않음
 
-		_playerMap[completionKey]->SaveRequestHearbeatTime();
+		_playerMap[completionKey]->SaveResponseHeartBeat();
 
 		DebugLog(Debug::DEBUG_LOG, std::format("Receive [RESPONSE_HEARTBEAT] from player: {}", _playerMap[completionKey]->GetServerName()));
 	}

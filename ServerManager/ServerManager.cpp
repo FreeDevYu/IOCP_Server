@@ -232,7 +232,7 @@ namespace Manager
 		DWORD offset = 0;
 		DWORD quitEventResult = 0;
 
-		DWORD lastHeartbeatTime = 0;
+		unsigned long long lastHeartbeatTime = 0;
 
 		while (_serverOn)
 		{

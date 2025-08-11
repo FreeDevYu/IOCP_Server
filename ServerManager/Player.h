@@ -46,7 +46,7 @@ namespace Manager
 		bool IsHeartbeatTarget() const;
 		bool CheckKickoutTarget(unsigned long long currentTime);
 		void SaveRequestHearbeatTime();
-		void ResponseHeartBeat();
+		void SaveResponseHeartBeat();
 		
 	private:
 		void DebugLog(const std::string& type, const std::string& message);

@@ -106,7 +106,7 @@ namespace Manager
 		_lastRequestTime = GetTickCount64();;
 	}
 
-	void Player::ResponseHeartBeat()
+	void Player::SaveResponseHeartBeat()
 	{
 		if (_serverStatus == ServerStatus::OFFLINE)
 		{
