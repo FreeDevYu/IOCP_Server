@@ -74,6 +74,5 @@ namespace Manager
 		_playerMap[completionKey]->SaveRequestHearbeatTime();
 
 		DebugLog(Debug::DEBUG_LOG, std::format("Receive [RESPONSE_HEARTBEAT] from player: {}", _playerMap[completionKey]->GetServerName()));
-		SendTelegramMessage(std::format("Receive RESPONSE_HEARTBEAT from player {}", _playerMap[completionKey]->GetServerName()));
 	}
 }

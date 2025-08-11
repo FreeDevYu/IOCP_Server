@@ -37,14 +37,14 @@ namespace Manager
 		DWORD _registerTime; // 서버 등록 시간
 
 		int _timeOutCount;
-		DWORD _lastRequestTime; // 마지막 HEARTBEAT 응답 시간
-		DWORD _lastResponseTime; // 마지막 HEARTBEAT 응답 시간
+		unsigned long long _lastRequestTime; // 마지막 HEARTBEAT 응답 시간
+		unsigned long long _lastResponseTime; // 마지막 HEARTBEAT 응답 시간
 
 		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
 	public:
 
 		bool IsHeartbeatTarget() const;
-		bool CheckKickoutTarget(DWORD currentTime);
+		bool CheckKickoutTarget(unsigned long long currentTime);
 		void SaveRequestHearbeatTime();
 		void ResponseHeartBeat();
 		

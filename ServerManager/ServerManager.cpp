@@ -262,7 +262,7 @@ namespace Manager
 			}
 			else
 			{
-				PlayerOnlineCheck(currentTime);
+				PlayerOnlineCheck(GetTickCount64());
 			}
 		}
 

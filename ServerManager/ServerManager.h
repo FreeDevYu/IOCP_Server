@@ -45,7 +45,7 @@ namespace Manager
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 
 	private:
-		void PlayerOnlineCheck(DWORD currentTime);
+		void PlayerOnlineCheck(unsigned long long currentTime);
 		void ProcessHeartBeat();
 
 	protected:

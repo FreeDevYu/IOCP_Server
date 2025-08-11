@@ -116,6 +116,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
             }
         }
     );
+    int tmp = config["HEARTBEAT_TIMEOUT"].get<int>();
 
 	Manager::ServerManagerDefine::Instance().SetHeartBeatInterval(config["HEARTBEAT_INTERVAL"].get<int>());
 	Manager::ServerManagerDefine::Instance().SetHeartBeatTimeout(config["HEARTBEAT_TIMEOUT"].get<int>());

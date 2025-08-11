@@ -2,7 +2,7 @@
 
 namespace Manager
 {
-	void ServerManager::PlayerOnlineCheck(DWORD currentTime)
+	void ServerManager::PlayerOnlineCheck(unsigned long long currentTime)
 	{
 		bool offlineCheck = false;
 		int size = _playerMap.size();
@@ -25,7 +25,7 @@ namespace Manager
 			{
 				// 플레이어가 오프라인 상태로 변경되었을 때 처리
 				DebugLog(Debug::DEBUG_LOG, std::format("Player is offline: {}", player->GetServerName()));
-
+				SendTelegramMessage(std::format("Server {} is OUT.", player->GetServerName()));
 			}
 			
 		}
@@ -73,7 +73,7 @@ namespace Manager
 		return _serverStatus != ServerStatus::OFFLINE && _serverStatus != ServerStatus::NOT_REGIST;
 	}
 
-	bool Player::CheckKickoutTarget(DWORD currentTime)
+	bool Player::CheckKickoutTarget(unsigned long long currentTime)
 	{
 		if(_serverStatus == ServerStatus::NOT_REGIST && _registerTime + Manager::ServerManagerDefine::Instance().GetRegisterWaitTime() < currentTime)
 		{
@@ -103,7 +103,7 @@ namespace Manager
 	void Player::SaveRequestHearbeatTime()
 	{
 		_serverStatus = ServerStatus::REQUEST; 
-		_lastRequestTime = GetTickCount();;
+		_lastRequestTime = GetTickCount64();;
 	}
 
 	void Player::ResponseHeartBeat()
@@ -115,7 +115,7 @@ namespace Manager
 		}
 
 		_serverStatus = ServerStatus::RESPONSE;
-		_lastResponseTime = GetTickCount();;
+		_lastResponseTime = GetTickCount64();;
 		_timeOutCount = 0;
 	}
 } 
