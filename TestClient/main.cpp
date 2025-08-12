@@ -313,7 +313,7 @@ static unsigned int WINAPI Work(void* pThis)
 							(char*)builder.GetBufferPointer()
 						);
 
-						MessageSend(messageData);// -> 오프라인테스트용 주석처리
+						//MessageSend(messageData);// -> 오프라인테스트용 주석처리
 						builder.Clear();
 						break;
 					}

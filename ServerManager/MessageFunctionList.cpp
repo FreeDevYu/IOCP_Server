@@ -11,6 +11,5 @@ namespace Manager
 
 
 		return NETWORK_OK;
-
 	}
 }

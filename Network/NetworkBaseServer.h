@@ -98,16 +98,6 @@ namespace Network
 
 	static unsigned int WINAPI WorkThreadProcess(void* pThis)
 	{
-		/*
-		BT_SetTerminate();
-		//
-		// tbb
-		// all threads that uses tbb MUST init the scheduler.
-		//
-	#ifdef _USE_TBB
-		tbb::task_scheduler_init init;
-	#endif
-	*/
 		NetworkBaseServer* pTemp = (NetworkBaseServer*)pThis;
 		return pTemp->WorkProcess();
 	}
@@ -120,8 +110,6 @@ namespace Network
 
 	static unsigned int WINAPI UpdateThreadProcess(void* pThis)
 	{
-		// tbb::global_control ??
-
 		NetworkBaseServer* pTemp = (NetworkBaseServer*)pThis;
 		return pTemp->UpdateProcess();
 	}

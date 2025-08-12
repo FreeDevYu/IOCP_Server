@@ -1,4 +1,3 @@
-#pragma comment(lib, "winhttp.lib")
 
 #include "ServerManager.h"
 #include "ServerManagerDefine.h"

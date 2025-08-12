@@ -6,6 +6,8 @@
 
 //#define CONFGINTEST
 
+#define USE_IMGUI
+
 #define OK			  1
 #define ERROR		 -1
 
@@ -27,18 +29,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) 
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 #ifdef CONFGINTEST
     Utility::CreateConfig("servermanager_config.json");
-#else
+#endif
 
     auto config = Utility::LoadSettingFiles("servermanager_config.json");
 
+    Manager::ServerManagerDefine::Instance().SetOverlappedCount(config["OVERLAPPED_COUNT_MAX"].get<int>());
+    Manager::ServerManagerDefine::Instance().SetMaxClient(config["CLIENT_CAPACITY"].get<int>());
+
+    Manager::ServerManagerDefine::Instance().SetHeartBeatInterval(config["HEARTBEAT_INTERVAL"].get<int>());
+    Manager::ServerManagerDefine::Instance().SetHeartBeatTimeout(config["HEARTBEAT_TIMEOUT"].get<int>());
+    Manager::ServerManagerDefine::Instance().SetHeartBeatMaxCount(config["HEARTBEAT_TIMEOUT_CHANCE"].get<int>());
+
+    Manager::ServerManagerDefine::Instance().SetRegisterWaitTime(config["REGISTER_TIMEOUT"].get<int>());
+
     Manager::ServerManager serverManager;
-  
+
     ////////////////////////////////////////////////////////////////////////////////
-    
+
+#ifdef USE_IMGUI
+    //IMGUI 사용시
+
     // 1. 윈도우 클래스 등록
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
@@ -90,44 +104,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
 
-    ImGui_ImplWin32_Init(hwnd);            
-    ImGui_ImplOpenGL3_Init("#version 130"); 
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplOpenGL3_Init("#version 130");
 
     MyGUI::DeveloperConsole console;
-	console.Initialize("Developer Console");
-
-    serverManager.SetDebugLogCallback
-    (
-        [&console](const std::string& type, const std::string& message) {
-            console.AddMessage(type, message);
-		}
-    );
+    console.Initialize("Developer Console");
 
     console.SetCommandCallback
     (
         [&serverManager](const std::string& command) {
-            if (command == "exit" || command == "quit") 
+            if (command == "exit" || command == "quit")
             {
                 PostQuitMessage(0); // 프로그램 종료
             }
-            else 
+            else
             {
-				std::string commandCopy = command;
+                std::string commandCopy = command;
                 serverManager.ReceiveExternalCommand(commandCopy);
             }
         }
     );
-    int tmp = config["HEARTBEAT_TIMEOUT"].get<int>();
-
-	Manager::ServerManagerDefine::Instance().SetOverlappedCount(config["OVERLAPPED_COUNT_MAX"].get<int>());
-	Manager::ServerManagerDefine::Instance().SetMaxClient(config["CLIENT_CAPACITY"].get<int>());
-
-	Manager::ServerManagerDefine::Instance().SetHeartBeatInterval(config["HEARTBEAT_INTERVAL"].get<int>());
-	Manager::ServerManagerDefine::Instance().SetHeartBeatTimeout(config["HEARTBEAT_TIMEOUT"].get<int>());
-	Manager::ServerManagerDefine::Instance().SetHeartBeatMaxCount(config["HEARTBEAT_TIMEOUT_CHANCE"].get<int>());
-
-	Manager::ServerManagerDefine::Instance().SetRegisterWaitTime(config["REGISTER_TIMEOUT"].get<int>());
-
 
     std::string settingMessage = std::format(
         "HEARTBEAT INTERVAL = {}, HEARTBEAT TIMEOUT = {}, HEARTBEAT TIMEOUT LIFE = {}, REGISTER TIMEOUT = {}",
@@ -138,15 +134,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
     console.AddMessage("Setting", settingMessage);
 
+    serverManager.SetDebugLogCallback
+    (
+        [&console](const std::string& type, const std::string& message) {
+            console.AddMessage(type, message);
+        }
+    );
+
     std::thread serverPoewrOnThread(
         [&serverManager]() {
             serverManager.PowerOnSequence();
         }
-	);
-
+    );
     serverPoewrOnThread.detach();
-
-
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -167,7 +167,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        SwapBuffers(hdc); 
+        SwapBuffers(hdc);
     }
 
     // 종료 처리
@@ -179,9 +179,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(hglrc);
     ReleaseDC(hwnd, hdc);
+#else
+
+//IMGUI 미사용시
+
+
 
 #endif
 
     return 0;
 }
-
