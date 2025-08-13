@@ -91,8 +91,8 @@ namespace Network
 			return NETWORK_ERROR; // 존재하지 않는 클라이언트
 		}
 
-		//delete iterator->second; // NetworkUser 객체 삭제
 		LockOn();
+		delete iterator->second; // NetworkUser 객체 삭제
 		_clientMap.unsafe_erase(iterator); // 클라이언트 목록에서 제거
 		LockOff();
 

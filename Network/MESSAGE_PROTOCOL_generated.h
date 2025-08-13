@@ -15,6 +15,9 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
 
 namespace protocol {
 
+struct INNER_CLOSE_CLIENT;
+struct INNER_CLOSE_CLIENTBuilder;
+
 struct REQUEST_REGISTER;
 struct REQUEST_REGISTERBuilder;
 
@@ -32,18 +35,20 @@ struct MESSAGE_PROTOCOLBuilder;
 
 enum MESSAGETYPE : int32_t {
   MESSAGETYPE_BEGIN = 0,
-  MESSAGETYPE_REQUEST_REGISTER = 1,
-  MESSAGETYPE_RESPONSE_REGISTER = 2,
-  MESSAGETYPE_REQUEST_HEARTBEAT = 3,
-  MESSAGETYPE_RESPONSE_HEARTBEAT = 4,
-  MESSAGETYPE_END = 5,
+  MESSAGETYPE_INNER_CLOSE_CLIENT = 1,
+  MESSAGETYPE_REQUEST_REGISTER = 2,
+  MESSAGETYPE_RESPONSE_REGISTER = 3,
+  MESSAGETYPE_REQUEST_HEARTBEAT = 4,
+  MESSAGETYPE_RESPONSE_HEARTBEAT = 5,
+  MESSAGETYPE_END = 6,
   MESSAGETYPE_MIN = MESSAGETYPE_BEGIN,
   MESSAGETYPE_MAX = MESSAGETYPE_END
 };
 
-inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[6] {
+inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[7] {
   static const MESSAGETYPE values[] = {
     MESSAGETYPE_BEGIN,
+    MESSAGETYPE_INNER_CLOSE_CLIENT,
     MESSAGETYPE_REQUEST_REGISTER,
     MESSAGETYPE_RESPONSE_REGISTER,
     MESSAGETYPE_REQUEST_HEARTBEAT,
@@ -54,8 +59,9 @@ inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[6] {
 }
 
 inline const char * const *EnumNamesMESSAGETYPE() {
-  static const char * const names[7] = {
+  static const char * const names[8] = {
     "BEGIN",
+    "INNER_CLOSE_CLIENT",
     "REQUEST_REGISTER",
     "RESPONSE_REGISTER",
     "REQUEST_HEARTBEAT",
@@ -74,17 +80,19 @@ inline const char *EnumNameMESSAGETYPE(MESSAGETYPE e) {
 
 enum Content : uint8_t {
   Content_NONE = 0,
-  Content_REQUEST_REGISTER = 1,
-  Content_RESPONSE_REGISTER = 2,
-  Content_REQUEST_HEARTBEAT = 3,
-  Content_RESPONSE_HEARTBEAT = 4,
+  Content_INNER_CLOSE_CLIENT = 1,
+  Content_REQUEST_REGISTER = 2,
+  Content_RESPONSE_REGISTER = 3,
+  Content_REQUEST_HEARTBEAT = 4,
+  Content_RESPONSE_HEARTBEAT = 5,
   Content_MIN = Content_NONE,
   Content_MAX = Content_RESPONSE_HEARTBEAT
 };
 
-inline const Content (&EnumValuesContent())[5] {
+inline const Content (&EnumValuesContent())[6] {
   static const Content values[] = {
     Content_NONE,
+    Content_INNER_CLOSE_CLIENT,
     Content_REQUEST_REGISTER,
     Content_RESPONSE_REGISTER,
     Content_REQUEST_HEARTBEAT,
@@ -94,8 +102,9 @@ inline const Content (&EnumValuesContent())[5] {
 }
 
 inline const char * const *EnumNamesContent() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "NONE",
+    "INNER_CLOSE_CLIENT",
     "REQUEST_REGISTER",
     "RESPONSE_REGISTER",
     "REQUEST_HEARTBEAT",
@@ -113,6 +122,10 @@ inline const char *EnumNameContent(Content e) {
 
 template<typename T> struct ContentTraits {
   static const Content enum_value = Content_NONE;
+};
+
+template<> struct ContentTraits<protocol::INNER_CLOSE_CLIENT> {
+  static const Content enum_value = Content_INNER_CLOSE_CLIENT;
 };
 
 template<> struct ContentTraits<protocol::REQUEST_REGISTER> {
@@ -133,6 +146,47 @@ template<> struct ContentTraits<protocol::RESPONSE_HEARTBEAT> {
 
 bool VerifyContent(::flatbuffers::Verifier &verifier, const void *obj, Content type);
 bool VerifyContentVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+
+struct INNER_CLOSE_CLIENT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef INNER_CLOSE_CLIENTBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_COMPLETIONKEY = 4
+  };
+  uint32_t completionkey() const {
+    return GetField<uint32_t>(VT_COMPLETIONKEY, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_COMPLETIONKEY, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct INNER_CLOSE_CLIENTBuilder {
+  typedef INNER_CLOSE_CLIENT Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_completionkey(uint32_t completionkey) {
+    fbb_.AddElement<uint32_t>(INNER_CLOSE_CLIENT::VT_COMPLETIONKEY, completionkey, 0);
+  }
+  explicit INNER_CLOSE_CLIENTBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<INNER_CLOSE_CLIENT> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<INNER_CLOSE_CLIENT>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<INNER_CLOSE_CLIENT> CreateINNER_CLOSE_CLIENT(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t completionkey = 0) {
+  INNER_CLOSE_CLIENTBuilder builder_(_fbb);
+  builder_.add_completionkey(completionkey);
+  return builder_.Finish();
+}
 
 struct REQUEST_REGISTER FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef REQUEST_REGISTERBuilder Builder;
@@ -327,6 +381,9 @@ struct MESSAGE_PROTOCOL FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return GetPointer<const void *>(VT_CONTENT);
   }
   template<typename T> const T *content_as() const;
+  const protocol::INNER_CLOSE_CLIENT *content_as_INNER_CLOSE_CLIENT() const {
+    return content_type() == protocol::Content_INNER_CLOSE_CLIENT ? static_cast<const protocol::INNER_CLOSE_CLIENT *>(content()) : nullptr;
+  }
   const protocol::REQUEST_REGISTER *content_as_REQUEST_REGISTER() const {
     return content_type() == protocol::Content_REQUEST_REGISTER ? static_cast<const protocol::REQUEST_REGISTER *>(content()) : nullptr;
   }
@@ -348,6 +405,10 @@ struct MESSAGE_PROTOCOL FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.EndTable();
   }
 };
+
+template<> inline const protocol::INNER_CLOSE_CLIENT *MESSAGE_PROTOCOL::content_as<protocol::INNER_CLOSE_CLIENT>() const {
+  return content_as_INNER_CLOSE_CLIENT();
+}
 
 template<> inline const protocol::REQUEST_REGISTER *MESSAGE_PROTOCOL::content_as<protocol::REQUEST_REGISTER>() const {
   return content_as_REQUEST_REGISTER();
@@ -405,6 +466,10 @@ inline bool VerifyContent(::flatbuffers::Verifier &verifier, const void *obj, Co
   switch (type) {
     case Content_NONE: {
       return true;
+    }
+    case Content_INNER_CLOSE_CLIENT: {
+      auto ptr = reinterpret_cast<const protocol::INNER_CLOSE_CLIENT *>(obj);
+      return verifier.VerifyTable(ptr);
     }
     case Content_REQUEST_REGISTER: {
       auto ptr = reinterpret_cast<const protocol::REQUEST_REGISTER *>(obj);

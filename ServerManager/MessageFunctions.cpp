@@ -2,6 +2,33 @@
 
 namespace Manager
 {
+	void ServerManager::INNER_CLOSE_CLIENT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
+	{
+		Manager::ServerManager* serverManager = static_cast<Manager::ServerManager*>(&server);
+		if (serverManager == nullptr)
+			return;
+
+		auto innerCloseClient = flatbuffers::GetRoot<protocol::INNER_CLOSE_CLIENT>(receiveMessage->Body);
+
+		if (innerCloseClient == nullptr)
+		{
+			DebugLog(Debug::DEBUG_ERROR, "INNER_CLOSE_CLIENT: Invalid request data.");
+			return;
+		}
+		DWORD completionKey = receiveMessage->CompletionKey;
+		DebugLog(Debug::DEBUG_LOG, std::format("Receive [INNER_CLOSE_CLIENT] from player: {}", completionKey));
+
+		int result = DisconnectClient(completionKey);
+
+		if (result != NETWORK_OK)
+		{
+			DebugLog(Debug::DEBUG_ERROR, std::format("DisconnectClient failed for completionKey: {}", completionKey));
+			return;
+		}
+
+		DebugLog(Debug::DEBUG_LOG, std::format("Player disconnected: {} Complete", completionKey));
+	}
+
 	void ServerManager::REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage)
 	{
 		Manager::ServerManager* serverManager = static_cast<Manager::ServerManager*>(&server);

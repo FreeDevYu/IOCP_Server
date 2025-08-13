@@ -27,7 +27,7 @@ namespace Network
 		void Initialize(DWORD completionKey, SOCKET socket, std::string ip, int port);
 		void Deinitialize();
 
-		SOCKET GetSocket();
+		SOCKET& GetSocket();
 		DWORD GetCompletionKey() const;
 
 		int AddMessage(void* message, DWORD size);

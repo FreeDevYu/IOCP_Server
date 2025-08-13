@@ -23,11 +23,26 @@ namespace Manager
 			offlineCheck = player->CheckKickoutTarget(currentTime);
 			if(offlineCheck == true)
 			{
+				// 타임아웃 횟수 초과시 연결을 강제로 끊는다.
+				// 연결이 끊어지면 메신저를 통해공지한다.
+				// 테스트용 : 서버가 연결이 끊어지면 다시 연결을 시도하도록 한다.(동일이름으로)
+				
+				flatbuffers::FlatBufferBuilder builder;
+				builder.Finish(protocol::CreateINNER_CLOSE_CLIENT(builder, player->GetCompletionKey()));
+
+				std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+					player->GetCompletionKey(),
+					Network::MessageHeader(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_INNER_CLOSE_CLIENT),
+					(char*)builder.GetBufferPointer()
+				);
+
+				_messageQueue.push(messageData);
+
+
 				// 플레이어가 오프라인 상태로 변경되었을 때 처리
 				DebugLog(Debug::DEBUG_LOG, std::format("Player is offline: {}", player->GetServerName()));
 				SendTelegramMessage(std::format("Server {} is OUT.", player->GetServerName()));
 			}
-			
 		}
 
 		//DebugLog(Debug::DEBUG_LOG, "PlayerOnlineCheck Complete"); -> 너무많이 호출되어 주석처리
@@ -88,11 +103,11 @@ namespace Manager
 			_timeOutCount++;
 			_serverStatus = ServerStatus::TIMEOUT; // RESPONSE로 해도 괜찮을듯
 
-			//Manager::ServerManager::DebugLog(Debug::DEBUG_LOG, std::format("Player {} is in TIMEOUT state. Timeout count: {}", _serverName, _timeOutCount));
 			DebugLog("DEBUG_LOG", std::format("Player {} is in TIMEOUT state. Timeout count: {}", _serverName, _timeOutCount));
 			if (_timeOutCount > Manager::ServerManagerDefine::Instance().GetHeartBeatMaxCount())
 			{
 				_serverStatus = ServerStatus::OFFLINE; // 최대 타임아웃 횟수 초과 시 OFFLINE 상태로 변경
+
 				return true;
 			}
 		}

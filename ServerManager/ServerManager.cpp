@@ -354,6 +354,37 @@ namespace Manager
 		_messageDispatchers[messageType].ProtocolFunction(*this, messageData);
 	}
 
+	int ServerManager::DisconnectClient(DWORD completionKey)
+	{
+		Network::NetworkBaseServer::DisconnectClient(completionKey);
+		int result = NETWORK_ERROR;
+
+		result = _clientManager->RemoveClient(completionKey); // NetworkUser 객체 메모리해제
+		if(result != NETWORK_OK)
+		{
+			DebugLog(Debug::DEBUG_ERROR, std::format("DisconnectClient: Failed to remove client with completionKey: {}", completionKey));
+			return result; // 클라이언트 제거 실패
+		}
+
+		auto playerIt = _playerMap.find(completionKey);
+		if (playerIt == _playerMap.end())
+		{
+			DebugLog(Debug::DEBUG_ERROR, std::format("DisconnectClient: Player with completionKey {} not found.", completionKey));
+			result = NETWORK_ERROR;
+			return result; // 플레이어가 존재하지 않는 경우
+		}
+
+		LockOn();
+
+		_playerMap.unsafe_erase(completionKey);
+		delete _playerMap[completionKey]; // Player 객체 메모리해제
+
+		LockOff();
+
+		result = NETWORK_OK;
+		return result;
+	}
+
 	void ServerManager::SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback)
 	{
 		_debugLogCallback = callback;

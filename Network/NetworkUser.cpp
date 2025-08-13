@@ -40,21 +40,10 @@ namespace Network
 	{
 		SAFE_DELETE(_messageBuilder);
 		_completionKey = 0;
-
-		//if (_socket != INVALID_SOCKET)
-		//{
-		//	int ret = closesocket(_socket);
-		//	if (ret == SOCKET_ERROR)
-		//	{
-		//		int errCode = WSAGetLastError();
-		//		// Handle error if needed
-		//	}
-		//}
-
-		_socket = INVALID_SOCKET;
+		_socket = NULL;//socket 닫기는 clientmanager에서 처리한다.
 	}
 
-	SOCKET NetworkUser::GetSocket()
+	SOCKET& NetworkUser::GetSocket()
 	{
 		return _socket;
 	}

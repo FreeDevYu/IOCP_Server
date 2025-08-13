@@ -359,7 +359,75 @@ namespace Network
 		}
 
 		return _clientManager->GetNetworkUser(completionKey);
+	}
 
+	int NetworkBaseServer::DisconnectClient(DWORD completionKey)
+	{
+		auto networkUser = _clientManager->GetNetworkUser(completionKey);
+		if(networkUser == nullptr)
+		{
+			DebugLog(Debug::DEBUG_ERROR, std::format("DisconnectClient failed: No user found for completionKey: {}", completionKey));
+			return NETWORK_ERROR;
+		}
+
+		SOCKET& socket = networkUser->GetSocket();
+		if (socket == INVALID_SOCKET)
+		{
+			DebugLog(Debug::DEBUG_ERROR, std::format("DisconnectClient failed: Invalid socket for completionKey: {}", completionKey));
+			return NETWORK_ERROR;
+		}
+
+		LINGER linger;
+		linger.l_onoff = TRUE;// 소켓이 닫힐 때 대기 시간을 활성화한다.
+		linger.l_linger = 0;// 대기 시간을 0으로 설정하여 즉시 소켓을 닫는다.
+		setsockopt(socket, SOL_SOCKET, SO_LINGER, (const char*)&linger, sizeof(linger));
+		::shutdown(socket, SD_BOTH);
+
+		int retCode = ::closesocket(socket);
+		if (retCode == SOCKET_ERROR)
+		{
+			retCode = ::WSAGetLastError();
+			// A successful WSAStartup call must occur before using this function.
+			if (retCode == WSANOTINITIALISED)
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket WSANOTINITIALISED ERROR"));
+			}
+			// The network subsystem has failed.
+			else if (retCode == WSAENETDOWN)
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket WSAENETDOWN ERROR"));
+			}
+			// The descriptor is not a socket.
+			else if (retCode == WSAENOTSOCK)
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket WSAENOTSOCK ERROR"));
+			}
+			// A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.
+			else if (retCode == WSAEINPROGRESS)
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket WSAEINPROGRESS ERROR"));
+			}
+			// The (blocking) Windows Socket 1.1 call was canceled through WSACancelBlockingCall.
+			else if (retCode == WSAEINTR)
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket WSAEINTR ERROR"));
+			}
+			// The socket is marked as nonblocking and SO_LINGER is set to a nonzero time-out value.
+			else if (retCode == WSAEWOULDBLOCK)
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket WSAEWOULDBLOCK ERROR"));
+			}
+			else
+			{
+				DebugLog(Debug::DEBUG_ERROR, std::format("CloseClient closesocket unknown ERROR %d", retCode));
+			}
+		}
+
+		socket = INVALID_SOCKET;
+
+		networkUser->Deinitialize();
+
+		return NETWORK_OK;
 	}
 
 	int NetworkBaseServer::RegistMessageDispatcher()

@@ -254,7 +254,7 @@ static unsigned int WINAPI Work(void* pThis)
 			{
 				if (bytesTransferred <= 0)
 				{
-					//_disconnectCallback(_serverType, completionKey, bytesTransferred, 0, overlapped);
+					std::cout << "Receive failed or connection closed." << std::endl;
 					continue;
 				}
 

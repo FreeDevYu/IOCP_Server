@@ -29,6 +29,9 @@ namespace Manager
 		int	UpdateProcess() override;
 		int RegistMessageDispatcher() override;
 
+	protected:
+		int DisconnectClient(DWORD completionKey) override;
+
 	private:
 		tbb::concurrent_queue<std::shared_ptr<Network::MessageData>> _messageQueue;
 		void RecvMessageProcess();
@@ -48,6 +51,7 @@ namespace Manager
 		tbb::concurrent_map<DWORD, Manager::Player*> _playerMap;
 
 	private:
+		void INNER_CLOSE_CLIENT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 

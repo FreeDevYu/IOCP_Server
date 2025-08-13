@@ -84,6 +84,8 @@ namespace Network
 		int SendMessageToClient(DWORD completionKey, std::shared_ptr<MessageData> messageData);
 		Network::NetworkUser* GetNetworkUser(DWORD completionKey);
 
+		virtual int DisconnectClient(DWORD completionKey);
+
 	public:
 		virtual int PowerOnSequence() = 0;
 		virtual int RegistMessageDispatcher();
