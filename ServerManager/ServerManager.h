@@ -9,8 +9,6 @@
 #include <winhttp.h>
 
 
-
-
 namespace Manager
 {
 	class ServerManager : public Network::NetworkBaseServer
@@ -29,6 +27,10 @@ namespace Manager
 		int	AcceptProcess() override;
 		int	UpdateProcess() override;
 		int RegistMessageDispatcher() override;
+
+	protected:
+		void PlayerOnlineCheck(unsigned long long currentTime) override;
+		void ProcessHeartBeat() override;
 
 	protected:
 		int DisconnectClient(DWORD completionKey) override;
@@ -55,10 +57,6 @@ namespace Manager
 		void INNER_CLOSE_CLIENT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-
-	private:
-		void PlayerOnlineCheck(unsigned long long currentTime);
-		void ProcessHeartBeat();
 
 	protected:
 		void DebugLog(Debug::DebugType debugtype, const std::string& message) override;

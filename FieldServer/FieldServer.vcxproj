@@ -109,7 +109,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\oneTBB\lib\intel64\vc14;$(SolutionDir)ThirdParty\boost\lib64-msvc-14.3;$(SolutionDir)x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>tbb12.lib;Network.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>tbb12.lib;Network.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,8 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExternalCommand.cpp" />
     <ClCompile Include="FieldServer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MessageFunctionList.cpp" />
+    <ClCompile Include="MessageFunctions.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>

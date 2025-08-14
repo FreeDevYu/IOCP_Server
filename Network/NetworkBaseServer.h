@@ -11,7 +11,7 @@
 #include "NetworkDefine.h"
 
 #include "../ThirdParty/flatbuffers/flatbuffers.h"
-#include "MESSAGE_PROTOCOL_generated.h"
+#include "NETWORK_PROTOCOL_generated.h"
 
 namespace Network
 {
@@ -92,6 +92,10 @@ namespace Network
 		virtual int	WorkProcess() = 0;
 		virtual int	AcceptProcess() = 0;
 		virtual int	UpdateProcess() = 0;
+
+	protected:
+		virtual void PlayerOnlineCheck(unsigned long long currentTime) = 0;
+		virtual void ProcessHeartBeat() = 0;
 
 	protected:
 		virtual void DebugLog(Debug::DebugType debugtype, const std::string& message) = 0;

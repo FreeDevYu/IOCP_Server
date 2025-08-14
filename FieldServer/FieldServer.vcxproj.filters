@@ -4,6 +4,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="FieldServer.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="ExternalCommand.cpp" />
+    <ClCompile Include="MessageFunctionList.cpp" />
+    <ClCompile Include="MessageFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FieldServer.h" />

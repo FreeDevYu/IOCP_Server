@@ -139,6 +139,8 @@ namespace Manager
 				
 			case Network::OperationType::OP_SEND:
 			{
+				overlapped->Clear();
+				_overlappedManager->Push(overlapped);
 				// Send 작업 처리
 				//_sendCallback(overlapped, completionKey);
 				break;
@@ -388,9 +390,6 @@ namespace Manager
 		int size_needed = MultiByteToWideChar(CP_UTF8, 0, message.c_str(), (int)message.size(), NULL, 0);
 		std::wstring wstr(size_needed, 0);
 		MultiByteToWideChar(CP_UTF8, 0, message.c_str(), (int)message.size(), &wstr[0], size_needed);
-
-
-
 
 		std::wstring token = L"8470620144:AAHYPfRumJvLjo7tEBR0OknoLF0Wz-ed3io";
 		std::wstring chatId = L"8349626032";

@@ -142,11 +142,11 @@
     <ClInclude Include="ClientManager.h" />
     <ClInclude Include="Lock.h" />
     <ClInclude Include="MessageBuilder.h" />
-    <ClInclude Include="MESSAGE_PROTOCOL_generated.h" />
     <ClInclude Include="NetworkBaseServer.h" />
     <ClInclude Include="NetworkConfig.h" />
     <ClInclude Include="NetworkDefine.h" />
     <ClInclude Include="NetworkUser.h" />
+    <ClInclude Include="NETWORK_PROTOCOL_generated.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="OverlappedManager.h" />
     <ClInclude Include="pch.h" />
