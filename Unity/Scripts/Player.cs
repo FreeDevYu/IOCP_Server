@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Player 
 {
-    Network.NetworkUser _networkUser;
+    private Network.NetworkUser _networkUser;
 
     public void Initialize(Network.NetworkBase networkBase)
     {
@@ -24,5 +24,8 @@ public class Player
         }
     }
 
-
+    public void SendMessage(string message)
+    {
+        _networkUser.SendMessage(message);
+    }
 }

@@ -52,13 +52,15 @@ namespace Network
             return result;
         }
 
-        public void SendMessageToServer(ref NetworkStream stream, string message)
+        public int SendMessageToServer(ref NetworkStream stream, string message)
         {
-            if (stream == null) return;
+            if (stream == null) 
+                return NETWORK_ERROR;
 
             byte[] data = Encoding.UTF8.GetBytes(message);
             stream.Write(data, 0, data.Length);
             Debug.Log("메시지 전송됨");
+            return NETWORK_OK;
         }
 
         private int ConnectToServer(ref TcpClient client, string ip, int port)

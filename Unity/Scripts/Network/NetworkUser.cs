@@ -83,6 +83,21 @@ namespace Network
             _receiveThread.Start();
         }
 
+        public void SendMessage(string message)
+        {
+            if (_networkStream == null || !_connected)
+            {
+                Debug.LogError("Network stream is not initialized or not connected.");
+                return;
+            }
+
+            int feedback = _networkBase.SendMessageToServer(ref _networkStream, message);
+            if (feedback == NetworkBase.NETWORK_ERROR)
+            {
+                Debug.LogError("Failed to send message to server.");
+            }
+        }
+
         private void ReceiveThread()
         {
             byte[] completeMessage;
