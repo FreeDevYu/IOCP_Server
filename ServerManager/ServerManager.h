@@ -21,6 +21,7 @@ namespace Manager
 
 	private:
 		HANDLE _powerOnEvent; // 서버 시작 시 초기화 작업을 위한 이벤트 핸들
+
 	public:
 		int PowerOnSequence() override; // 서버 시작 시 초기화 작업을 수행합니다.
 

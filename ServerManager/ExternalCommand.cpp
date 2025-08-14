@@ -4,11 +4,11 @@ namespace Manager
 {
 	void ServerManager::SettingExternalCommands()
 	{
+		// 서버매니저 종료메세지도 추가할것.
 		_commandMap.insert({ "port", std::bind(&ServerManager::GetServerPort, this, std::placeholders::_1) });
 		_commandMap.insert({ "name", std::bind(&ServerManager::GetServerName, this, std::placeholders::_1) });
 		_commandMap.insert({ "allow_ip", std::bind(&ServerManager::AddConnectPermissionIp, this, std::placeholders::_1) });
 	
-
 	}
 
 	void ServerManager::ReceiveExternalCommand(std::string& input)

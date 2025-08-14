@@ -87,11 +87,37 @@ namespace Network
 				return nullptr;
 			}
 
-	
 			return  std::make_shared<Network::MessageData>(_completionKey,header,bodyBuffer);
 		}
 		
 		return nullptr;
+	}
+
+	int NetworkUser::ReceiveReady(Network::CustomOverlapped* overlapped)
+	{
+		DWORD bytesTransferred = 0;
+		DWORD flags = 0;
+
+		int nRetCode = ::WSARecv(
+			_socket,
+			&(overlapped->Wsabuf),
+			1,
+			&bytesTransferred,
+			&flags,
+			&(*overlapped),
+			NULL);
+
+		int nLastErr = 0;
+		if ((nRetCode == SOCKET_ERROR) && ((nLastErr = WSAGetLastError()) != WSA_IO_PENDING))
+		{
+			return NETWORK_ERROR;
+		}
+		else
+		{
+			IncreasePendingIOCount();
+			SetLastRequeueTime(GetTickCount64());
+			return NETWORK_OK; 
+		}
 	}
 
 	int NetworkUser::GetPendingIOCount() const
@@ -102,7 +128,6 @@ namespace Network
 	void NetworkUser::IncreasePendingIOCount()
 	{
 		_ioPendingCount.fetch_add(1, std::memory_order_relaxed);
-
 	}
 
 	void NetworkUser::DecreasePendingIOCount()

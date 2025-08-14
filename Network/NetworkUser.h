@@ -35,13 +35,16 @@ namespace Network
 
 		inline bool IsOnline() { return _socket == INVALID_SOCKET ? false : true; }
 
+		int ReceiveReady(Network::CustomOverlapped* overlapped);
 		int GetPendingIOCount() const;
-		void IncreasePendingIOCount();
-		void DecreasePendingIOCount();
 
 		void SetLastRequeueTime(DWORD time);
 		DWORD GetLastRequeueTime() const;
 
 		std::string GetIpAddress() const;
+
+	private:
+		void IncreasePendingIOCount();
+		void DecreasePendingIOCount();
 	};
 }
