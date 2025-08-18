@@ -8,22 +8,28 @@ namespace Network
 {
     public class MessageBuilder
     {
-        //const
-        private int _messageBufferLength;
-        private int _messageHeadrSize;
+        private readonly int _messageHeadrSize;
 
+        private int _messageBufferLength;
         private byte[] _messageBuffer;
         private int _currentIndex;
  
+        public MessageBuilder()
+        {
+            _messageBufferLength = 0;
+            _messageBuffer = null;
+            _currentIndex = 0;
+            _messageHeadrSize = Marshal.SizeOf<MessageHeader>();
+        }
 
         public void Initialize(int bufferSize)
         {
             _messageBufferLength = bufferSize;
             _messageBuffer = new byte[_messageBufferLength];
             _currentIndex = 0;
-            _messageHeadrSize = Marshal.SizeOf<MessageHeader>();
         }
 
+        // _messageBuffer 수정작업은 단일쓰레드에서 동작하고 있기 때문에 스레드 안전성은 고려하지 않습니다.
         public void InsertByte(byte value)
         {
             _messageBuffer[_currentIndex++] = value;
@@ -56,8 +62,12 @@ namespace Network
                 return false;
             }
 
-            completeMessage = new byte[totalMessageSize]; //gc 자동해제.
+            completeMessage = new byte[totalMessageSize]; //gc 자동해제... c++과 다르다
             System.Array.Copy(_messageBuffer, 0, completeMessage, 0, totalMessageSize);
+
+
+           //byte[] bodyMessage = new byte[header.BodySize];
+           //System.Array.Copy(_messageBuffer, _messageHeadrSize, bodyMessage, 0, header.BodySize);
 
             // Reset for next message
             System.Array.Copy(_messageBuffer, totalMessageSize, _messageBuffer, 0, _currentIndex - totalMessageSize);

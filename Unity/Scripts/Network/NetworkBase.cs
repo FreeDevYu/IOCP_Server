@@ -13,69 +13,39 @@ using UnityEngine;
 
 namespace Network
 {
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct MessageHeader
-    {
-        public uint BodySize;
-        public uint ContentsType;
-
-        public static MessageHeader FromBytes(ReadOnlySpan<byte> span)
-        {
-            return MemoryMarshal.Read<MessageHeader>(span);
-        }
-    }
-
-
     public class NetworkBase
     {
-        public static readonly string NETWORK_IP = "127.0.0.1";
-        public static readonly int NETWORK_PORT = 9001;
-        public static readonly int NETWORK_BUFFER_SIZE = 2048;
-        public static readonly int NETWORK_HEADER_SIZE = 4; // 메시지 길이를 나타내는 헤더 크기 (int형)
-
-        public static readonly int NETWORK_OK = 1;
-        public static readonly int NETWORK_ERROR = -1;
-
-
-        public int Construct(ref TcpClient client)
+        public int Construct()
         {
             int result = 0;
-            result = ConnectToServer(ref client, NETWORK_IP, NETWORK_PORT); // 서버 IP와 포트
-
-            if (result == NETWORK_ERROR)
-            {
-                Debug.LogError("네트워크 연결에 실패했습니다.");
-                return result;
-            }
 
             return result;
         }
 
-        public int SendMessageToServer(ref NetworkStream stream, string message)
-        {
-            if (stream == null) 
-                return NETWORK_ERROR;
-
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            stream.Write(data, 0, data.Length);
-            Debug.Log("메시지 전송됨");
-            return NETWORK_OK;
-        }
-
-        private int ConnectToServer(ref TcpClient client, string ip, int port)
+        public int ConnectToServer(ref TcpClient client, string ip, int port)
         {
             try
             {
                 client = new TcpClient(ip, port);
                 Debug.Log("서버에 연결되었습니다: " + ip + ":" + port);
-                return NETWORK_OK;
+                return Network.NetworkDefine.NETWORK_OK;
             }
             catch (SocketException e)
             {
                 Debug.LogError("서버 연결 실패: " + e.Message);
-                return NETWORK_ERROR;
+                return Network.NetworkDefine.NETWORK_ERROR;
             }
+        }
+
+        public int SendMessageToServer(ref NetworkStream stream, string message)
+        {
+            if (stream == null) 
+                return Network.NetworkDefine.NETWORK_ERROR;
+
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            stream.Write(data, 0, data.Length);
+            Debug.Log("메시지 전송됨");
+            return Network.NetworkDefine.NETWORK_OK;
         }
 
         public int Receive(NetworkStream stream, MessageBuilder messageBuilder, byte[] receiveBuffer) // client.GetStream
@@ -86,16 +56,16 @@ namespace Network
                 if (bytesRead > 0)
                 {
                     messageBuilder.InsertMessage(receiveBuffer, 0, bytesRead);
-                    return NETWORK_OK;
+                    return Network.NetworkDefine.NETWORK_OK;
                 }
 
-                return NETWORK_ERROR;
+                return Network.NetworkDefine.NETWORK_ERROR;
             }
             catch (IOException ex)
             {
                 // 네트워크 오류 처리
                 Console.WriteLine("ReceiveThread error: " + ex.Message);
-                return NETWORK_ERROR;
+                return Network.NetworkDefine.NETWORK_ERROR;
             }
         }
 
