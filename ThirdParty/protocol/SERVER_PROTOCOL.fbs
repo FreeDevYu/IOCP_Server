@@ -1,0 +1,98 @@
+namespace protocol;
+
+enum MESSAGETYPE : int
+{
+BEGIN = 0,
+
+INNER_CLOSE_CLIENT = 1,
+
+REQUEST_REGISTER = 2,
+RESPONSE_REGISTER = 3,
+
+REQUEST_HEARTBEAT = 4,
+RESPONSE_HEARTBEAT = 5,
+
+REQUEST_PLAYERMOVE = 100,
+RESPONSE_PLAYERMOVE =101,
+
+NOTICE_PLAYERPOSITION = 102,
+
+END
+}
+
+table INNER_CLOSE_CLIENT
+{
+completionkey : uint32;
+}
+
+table REQUEST_REGISTER
+{
+player_id : string;
+secret_key : string;
+}
+
+table RESPONSE_REGISTER
+{
+player_id : string;
+feedback : bool;
+}
+
+table REQUEST_HEARTBEAT
+{
+player_id : string;
+}
+
+table RESPONSE_HEARTBEAT
+{
+player_id : string;
+feedback : bool;
+}
+
+table REQUEST_PLAYERMOVE
+{
+player_id : string;
+rotation_x : float;
+move_speed : float;
+move_start_time : float;
+duration : float;
+}
+
+table RESPONSE_PLAYERMOVE
+{
+feedback : bool;
+}
+
+table NOTICE_PLAYERPOSITION
+{
+player_id : string;
+position_x : float;
+position_y : float;
+position_z : float;
+}
+
+union Content
+{
+
+INNER_CLOSE_CLIENT,
+
+REQUEST_REGISTER,
+RESPONSE_REGISTER,
+
+REQUEST_HEARTBEAT,
+RESPONSE_HEARTBEAT,
+
+REQUEST_PLAYERMOVE ,
+RESPONSE_PLAYERMOVE,
+
+NOTICE_PLAYERPOSITION
+
+}
+
+
+table SERVER_PROTOCOL
+{
+    message_type : MESSAGETYPE;
+    content : Content;
+}
+
+root_type SERVER_PROTOCOL;

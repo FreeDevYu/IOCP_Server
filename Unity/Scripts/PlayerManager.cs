@@ -11,7 +11,7 @@ public class PlayerManager : MonoBehaviour
     private Player _currentPlayer;
     private MessageReadModule _messageModule;
 
-    private Queue<UInt32> _playerIdQueue;
+    private ConcurrentDictionary<string, Player> _players;
     private ConcurrentQueue<Network.MessageData> _receiveMessageQueue;
 
     void Start()
@@ -23,11 +23,7 @@ public class PlayerManager : MonoBehaviour
         _messageModule.Initialize(this);
 
         _receiveMessageQueue = new ConcurrentQueue<Network.MessageData>();
-        _playerIdQueue = new Queue<UInt32>();
-        for (UInt32 i = 1; i <= Network.NetworkDefine.MAX_PLAYER_COUNT; i++)
-        {
-            _playerIdQueue.Enqueue(i);
-        }
+        _players = new ConcurrentDictionary<string, Player>();
     }
 
     void Update()
@@ -68,21 +64,42 @@ public class PlayerManager : MonoBehaviour
             DestroyPlayer();
         }
 
-        UInt32 playerId = _playerIdQueue.Dequeue();
         _currentPlayer = new Player();
-        _currentPlayer.Initialize(playerId, _networkBase, _receiveMessageQueue);
+        string tmpID = "TESTER";
+        _currentPlayer.Initialize(tmpID, _networkBase, _receiveMessageQueue);
         _currentPlayer.StartReceiveThraed();
-  
-        Debug.Log($"Player created with ID: {playerId}");
+        bool feedback = _players.TryAdd(tmpID, _currentPlayer);
+        if(feedback)
+        {
+            Debug.Log($"Player created with ID: {_currentPlayer.GetPlayerId()}");
+        }
+        else
+        {
+            Debug.Log("Player created Fail");
+        }
     }
 
     private void DestroyPlayer()
     {
-        UInt32 playerId = _currentPlayer.GetPlayerId();
-        _currentPlayer.Deinitialize();
-        _playerIdQueue.Enqueue(playerId);
-        _currentPlayer = null;
-        Debug.Log($"Player with ID: {playerId} destroyed.");
+        string playerId = _currentPlayer.GetPlayerId();
+        if(_players.TryRemove(playerId, out var player))
+        {
+            player.Deinitialize();
+
+            //현재는 싱글플레이어만 관리하고있어 부자연스러운부분.
+            _currentPlayer = null;
+            Debug.Log($"Player with ID: {playerId} destroyed.");
+        }
+    }
+
+    public Player FindPlayerByID(string id)
+    {
+        if(_players.TryGetValue(id, out var player))
+        {
+            return player;
+        }
+
+        return null;
     }
 
     //초기화없이 강제종료시 c#의 쓰레드가 남는 문제가 있어서, 안정적 초기화를 위한 코드.

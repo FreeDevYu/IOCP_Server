@@ -363,8 +363,7 @@ namespace Field
 	void FieldServer::ProcessHeartBeat()
 	{
 		int size = _playerMap.size();
-		flatbuffers::FlatBufferBuilder builder;// while문 안에서 생성된 builder는 while문종료시 삭제된다.
-		builder.Finish(protocol::CreateREQUEST_HEARTBEAT(builder));
+
 
 		for (int i = 0;i < size; ++i)
 		{
@@ -380,6 +379,10 @@ namespace Field
 				continue;
 
 			player->SaveRequestHearbeatTime();
+
+			flatbuffers::FlatBufferBuilder builder;// while문 안에서 생성된 builder는 while문종료시 삭제된다.
+			auto playerIdOFffset = builder.CreateString(player->GetPlayerID());
+			builder.Finish(protocol::CreateREQUEST_HEARTBEAT(builder, playerIdOFffset));
 
 			Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_REQUEST_HEARTBEAT);
 			std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(

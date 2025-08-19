@@ -288,13 +288,19 @@ inline ::flatbuffers::Offset<REQUEST_REGISTER> CreateREQUEST_REGISTERDirect(
 struct RESPONSE_REGISTER FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef RESPONSE_REGISTERBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_FEEDBACK = 4
+    VT_PLAYER_ID = 4,
+    VT_FEEDBACK = 6
   };
+  const ::flatbuffers::String *player_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
+  }
   bool feedback() const {
     return GetField<uint8_t>(VT_FEEDBACK, 0) != 0;
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PLAYER_ID) &&
+           verifier.VerifyString(player_id()) &&
            VerifyField<uint8_t>(verifier, VT_FEEDBACK, 1) &&
            verifier.EndTable();
   }
@@ -304,6 +310,9 @@ struct RESPONSE_REGISTERBuilder {
   typedef RESPONSE_REGISTER Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
+    fbb_.AddOffset(RESPONSE_REGISTER::VT_PLAYER_ID, player_id);
+  }
   void add_feedback(bool feedback) {
     fbb_.AddElement<uint8_t>(RESPONSE_REGISTER::VT_FEEDBACK, static_cast<uint8_t>(feedback), 0);
   }
@@ -320,16 +329,37 @@ struct RESPONSE_REGISTERBuilder {
 
 inline ::flatbuffers::Offset<RESPONSE_REGISTER> CreateRESPONSE_REGISTER(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> player_id = 0,
     bool feedback = false) {
   RESPONSE_REGISTERBuilder builder_(_fbb);
+  builder_.add_player_id(player_id);
   builder_.add_feedback(feedback);
   return builder_.Finish();
 }
 
+inline ::flatbuffers::Offset<RESPONSE_REGISTER> CreateRESPONSE_REGISTERDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *player_id = nullptr,
+    bool feedback = false) {
+  auto player_id__ = player_id ? _fbb.CreateString(player_id) : 0;
+  return protocol::CreateRESPONSE_REGISTER(
+      _fbb,
+      player_id__,
+      feedback);
+}
+
 struct REQUEST_HEARTBEAT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef REQUEST_HEARTBEATBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYER_ID = 4
+  };
+  const ::flatbuffers::String *player_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PLAYER_ID) &&
+           verifier.VerifyString(player_id()) &&
            verifier.EndTable();
   }
 };
@@ -338,6 +368,9 @@ struct REQUEST_HEARTBEATBuilder {
   typedef REQUEST_HEARTBEAT Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
+    fbb_.AddOffset(REQUEST_HEARTBEAT::VT_PLAYER_ID, player_id);
+  }
   explicit REQUEST_HEARTBEATBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -350,21 +383,38 @@ struct REQUEST_HEARTBEATBuilder {
 };
 
 inline ::flatbuffers::Offset<REQUEST_HEARTBEAT> CreateREQUEST_HEARTBEAT(
-    ::flatbuffers::FlatBufferBuilder &_fbb) {
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> player_id = 0) {
   REQUEST_HEARTBEATBuilder builder_(_fbb);
+  builder_.add_player_id(player_id);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<REQUEST_HEARTBEAT> CreateREQUEST_HEARTBEATDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *player_id = nullptr) {
+  auto player_id__ = player_id ? _fbb.CreateString(player_id) : 0;
+  return protocol::CreateREQUEST_HEARTBEAT(
+      _fbb,
+      player_id__);
 }
 
 struct RESPONSE_HEARTBEAT FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef RESPONSE_HEARTBEATBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_FEEDBACK = 4
+    VT_PLAYER_ID = 4,
+    VT_FEEDBACK = 6
   };
+  const ::flatbuffers::String *player_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
+  }
   bool feedback() const {
     return GetField<uint8_t>(VT_FEEDBACK, 0) != 0;
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PLAYER_ID) &&
+           verifier.VerifyString(player_id()) &&
            VerifyField<uint8_t>(verifier, VT_FEEDBACK, 1) &&
            verifier.EndTable();
   }
@@ -374,6 +424,9 @@ struct RESPONSE_HEARTBEATBuilder {
   typedef RESPONSE_HEARTBEAT Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
+    fbb_.AddOffset(RESPONSE_HEARTBEAT::VT_PLAYER_ID, player_id);
+  }
   void add_feedback(bool feedback) {
     fbb_.AddElement<uint8_t>(RESPONSE_HEARTBEAT::VT_FEEDBACK, static_cast<uint8_t>(feedback), 0);
   }
@@ -390,10 +443,23 @@ struct RESPONSE_HEARTBEATBuilder {
 
 inline ::flatbuffers::Offset<RESPONSE_HEARTBEAT> CreateRESPONSE_HEARTBEAT(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> player_id = 0,
     bool feedback = false) {
   RESPONSE_HEARTBEATBuilder builder_(_fbb);
+  builder_.add_player_id(player_id);
   builder_.add_feedback(feedback);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<RESPONSE_HEARTBEAT> CreateRESPONSE_HEARTBEATDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *player_id = nullptr,
+    bool feedback = false) {
+  auto player_id__ = player_id ? _fbb.CreateString(player_id) : 0;
+  return protocol::CreateRESPONSE_HEARTBEAT(
+      _fbb,
+      player_id__,
+      feedback);
 }
 
 struct REQUEST_PLAYERMOVE FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

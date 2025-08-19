@@ -65,7 +65,8 @@ namespace Field
 		}
 		
 		flatbuffers::FlatBufferBuilder builder;
-		builder.Finish(protocol::CreateRESPONSE_REGISTER(builder, success));
+		auto playerIDOffset = builder.CreateString(requestConnect->player_id()->str());
+		builder.Finish(protocol::CreateRESPONSE_REGISTER(builder, playerIDOffset,success));
 
 		Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_RESPONSE_REGISTER);
 		std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(

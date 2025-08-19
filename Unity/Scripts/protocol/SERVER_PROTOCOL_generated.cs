@@ -177,17 +177,27 @@ public struct RESPONSE_REGISTER : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public RESPONSE_REGISTER __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public bool Feedback { get { int o = __p.__offset(4); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public string PlayerId { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPlayerIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
+  public bool Feedback { get { int o = __p.__offset(6); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
 
   public static Offset<protocol.RESPONSE_REGISTER> CreateRESPONSE_REGISTER(FlatBufferBuilder builder,
+      StringOffset player_idOffset = default(StringOffset),
       bool feedback = false) {
-    builder.StartTable(1);
+    builder.StartTable(2);
+    RESPONSE_REGISTER.AddPlayerId(builder, player_idOffset);
     RESPONSE_REGISTER.AddFeedback(builder, feedback);
     return RESPONSE_REGISTER.EndRESPONSE_REGISTER(builder);
   }
 
-  public static void StartRESPONSE_REGISTER(FlatBufferBuilder builder) { builder.StartTable(1); }
-  public static void AddFeedback(FlatBufferBuilder builder, bool feedback) { builder.AddBool(0, feedback, false); }
+  public static void StartRESPONSE_REGISTER(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
+  public static void AddFeedback(FlatBufferBuilder builder, bool feedback) { builder.AddBool(1, feedback, false); }
   public static Offset<protocol.RESPONSE_REGISTER> EndRESPONSE_REGISTER(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<protocol.RESPONSE_REGISTER>(o);
@@ -200,7 +210,8 @@ static public class RESPONSE_REGISTERVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyField(tablePos, 4 /*Feedback*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
+      && verifier.VerifyField(tablePos, 6 /*Feedback*/, 1 /*bool*/, 1, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -214,8 +225,23 @@ public struct REQUEST_HEARTBEAT : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public REQUEST_HEARTBEAT __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
+  public string PlayerId { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPlayerIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
 
-  public static void StartREQUEST_HEARTBEAT(FlatBufferBuilder builder) { builder.StartTable(0); }
+  public static Offset<protocol.REQUEST_HEARTBEAT> CreateREQUEST_HEARTBEAT(FlatBufferBuilder builder,
+      StringOffset player_idOffset = default(StringOffset)) {
+    builder.StartTable(1);
+    REQUEST_HEARTBEAT.AddPlayerId(builder, player_idOffset);
+    return REQUEST_HEARTBEAT.EndREQUEST_HEARTBEAT(builder);
+  }
+
+  public static void StartREQUEST_HEARTBEAT(FlatBufferBuilder builder) { builder.StartTable(1); }
+  public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
   public static Offset<protocol.REQUEST_HEARTBEAT> EndREQUEST_HEARTBEAT(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<protocol.REQUEST_HEARTBEAT>(o);
@@ -228,6 +254,7 @@ static public class REQUEST_HEARTBEATVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -241,17 +268,27 @@ public struct RESPONSE_HEARTBEAT : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public RESPONSE_HEARTBEAT __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public bool Feedback { get { int o = __p.__offset(4); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public string PlayerId { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPlayerIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
+  public bool Feedback { get { int o = __p.__offset(6); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
 
   public static Offset<protocol.RESPONSE_HEARTBEAT> CreateRESPONSE_HEARTBEAT(FlatBufferBuilder builder,
+      StringOffset player_idOffset = default(StringOffset),
       bool feedback = false) {
-    builder.StartTable(1);
+    builder.StartTable(2);
+    RESPONSE_HEARTBEAT.AddPlayerId(builder, player_idOffset);
     RESPONSE_HEARTBEAT.AddFeedback(builder, feedback);
     return RESPONSE_HEARTBEAT.EndRESPONSE_HEARTBEAT(builder);
   }
 
-  public static void StartRESPONSE_HEARTBEAT(FlatBufferBuilder builder) { builder.StartTable(1); }
-  public static void AddFeedback(FlatBufferBuilder builder, bool feedback) { builder.AddBool(0, feedback, false); }
+  public static void StartRESPONSE_HEARTBEAT(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
+  public static void AddFeedback(FlatBufferBuilder builder, bool feedback) { builder.AddBool(1, feedback, false); }
   public static Offset<protocol.RESPONSE_HEARTBEAT> EndRESPONSE_HEARTBEAT(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<protocol.RESPONSE_HEARTBEAT>(o);
@@ -264,7 +301,8 @@ static public class RESPONSE_HEARTBEATVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyField(tablePos, 4 /*Feedback*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
+      && verifier.VerifyField(tablePos, 6 /*Feedback*/, 1 /*bool*/, 1, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

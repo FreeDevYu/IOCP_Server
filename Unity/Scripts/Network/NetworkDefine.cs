@@ -59,11 +59,11 @@ namespace Network
 
     public class MessageData
     {
-        public UInt32 PlayerId;
+        public string PlayerId;
         public MessageHeader Header;
         public ByteBuffer Body;
 
-       public MessageData(UInt32 PlayerId, byte[] completedMessage)
+       public MessageData(string PlayerId, byte[] completedMessage)
         {
             if (completedMessage == null || completedMessage.Length < NetworkDefine.NETWORK_HEADER_SIZE)
             {

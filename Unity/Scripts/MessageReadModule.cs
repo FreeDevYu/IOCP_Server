@@ -23,6 +23,7 @@ public class MessageReadModule
         PlayerManager = playerManager;
 
         _dicMessageHandler.Add(protocol.MESSAGETYPE.RESPONSE_REGISTER, new RESPONSE_REGISTER());
+        _dicMessageHandler.Add(protocol.MESSAGETYPE.REQUEST_HEARTBEAT, new REQUEST_HEARTBEAT());
     }
 
     public void Process(Network.MessageData messageData)
@@ -44,6 +45,31 @@ public class RESPONSE_REGISTER : IMessageReadHandler
     {
         var message = protocol.RESPONSE_REGISTER.GetRootAsRESPONSE_REGISTER(messageData.Body);
 
+        string playerID = message.PlayerId;
+        bool feedback = message.Feedback;
+
+        Player targetPlayer = module.PlayerManager.FindPlayerByID(playerID);
+        if (targetPlayer == null)
+            return;
+
+
         Debug.Log($"RESPONSE_REGISTER: Feedback = {message.Feedback}");
+    }
+}
+
+public class REQUEST_HEARTBEAT : IMessageReadHandler
+{
+    public void HandleMessage(MessageReadModule module, Network.MessageData messageData)
+    {
+        var message = protocol.REQUEST_HEARTBEAT.GetRootAsREQUEST_HEARTBEAT(messageData.Body);
+
+        string playerID = message.PlayerId;
+
+        Player targetPlayer = module.PlayerManager.FindPlayerByID(playerID);
+        if (targetPlayer == null)
+            return;
+
+        targetPlayer.ResponseHeartBeat();
+        Debug.Log($"REQUEST_HEARTBEAT");
     }
 }
