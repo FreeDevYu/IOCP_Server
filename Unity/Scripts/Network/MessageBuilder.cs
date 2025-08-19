@@ -54,7 +54,7 @@ namespace Network
                 return false;
             }
 
-            MessageHeader header = MessageHeader.FromBytes(_messageBuffer.AsSpan(0, _messageHeadrSize));
+            MessageHeader header = new MessageHeader(_messageBuffer.AsSpan(0, _messageHeadrSize));
             int totalMessageSize = _messageHeadrSize + (int)header.BodySize;
             if (_currentIndex < totalMessageSize)
             {

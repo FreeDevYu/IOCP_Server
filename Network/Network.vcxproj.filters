@@ -20,6 +20,5 @@
     <ClInclude Include="NetworkConfig.h" />
     <ClInclude Include="OverlappedManager.h" />
     <ClInclude Include="ObjectPool.h" />
-    <ClInclude Include="NETWORK_PROTOCOL_generated.h" />
   </ItemGroup>
 </Project>

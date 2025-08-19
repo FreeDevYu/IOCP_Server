@@ -53,6 +53,11 @@ public class PlayerManager : MonoBehaviour
         {
             DestroyPlayer();
         }
+
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            _currentPlayer.Regist();
+        }
     }
 
     private void CreatePlayer()
@@ -67,6 +72,7 @@ public class PlayerManager : MonoBehaviour
         _currentPlayer = new Player();
         _currentPlayer.Initialize(playerId, _networkBase, _receiveMessageQueue);
         _currentPlayer.StartReceiveThraed();
+  
         Debug.Log($"Player created with ID: {playerId}");
     }
 

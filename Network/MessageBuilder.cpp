@@ -32,6 +32,7 @@ namespace Network
 		memcpy(_buffer + _bufferSize, message, size);
 		_bufferSize += size;
 
+
 		LockOff();
 
 		return NETWORK_OK;
@@ -66,6 +67,7 @@ namespace Network
 		bodyBuffer = new char[header.BodySize];
 
 		std::memcpy(bodyBuffer, _buffer + sizeof(MessageHeader), header.BodySize);
+
 		int sliceSize = sizeof(MessageHeader) + header.BodySize;
 		_bufferSize -= sliceSize;
 

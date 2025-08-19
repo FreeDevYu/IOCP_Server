@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Google.FlatBuffers;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Network
@@ -21,7 +22,7 @@ namespace Network
         public static readonly string NETWORK_IP = "127.0.0.1";
         public static readonly int NETWORK_PORT = 9091;
         public static readonly int NETWORK_BUFFER_SIZE = 2048;
-        public static readonly int NETWORK_HEADER_SIZE = 4; // 메시지 길이를 나타내는 헤더 크기 (int형)
+        public static readonly int NETWORK_HEADER_SIZE = Marshal.SizeOf<MessageHeader>(); // 메시지 길이를 나타내는 헤더 크기 (int형)
 
         public static readonly int MAX_PLAYER_COUNT = 1; // 최대 플레이어 수
 
@@ -35,9 +36,24 @@ namespace Network
         public uint BodySize;
         public uint ContentsType;
 
-        public static MessageHeader FromBytes(ReadOnlySpan<byte> span)
+        public MessageHeader(uint bodySize, uint contentsType)
         {
-            return MemoryMarshal.Read<MessageHeader>(span);
+            this.BodySize = bodySize;
+            this.ContentsType = contentsType;
+        }
+
+        public MessageHeader(ReadOnlySpan<byte> span)
+        {
+            MessageHeader tempHeader = MemoryMarshal.Read<MessageHeader>(span);
+            this.BodySize = tempHeader.BodySize;
+            this.ContentsType = tempHeader.ContentsType;
+        }
+
+        public byte[] ToBytes()
+        {
+            byte[] buffer = new byte[Network.NetworkDefine.NETWORK_HEADER_SIZE];
+            MemoryMarshal.Write(buffer, ref this);
+            return buffer;
         }
     }
 
@@ -54,7 +70,7 @@ namespace Network
                 throw new ArgumentException("Invalid message data.");
             }
 
-            Header = MessageHeader.FromBytes(completedMessage.AsSpan(0, NetworkDefine.NETWORK_HEADER_SIZE));
+            Header = new MessageHeader(completedMessage.AsSpan(0, NetworkDefine.NETWORK_HEADER_SIZE));
 
             if (completedMessage.Length < NetworkDefine.NETWORK_HEADER_SIZE + Header.BodySize)
             {

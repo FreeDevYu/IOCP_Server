@@ -91,7 +91,7 @@ namespace Network
             _receiveThread.Start();
         }
 
-        public void SendMessage(string message)
+        public void SendMessage(byte[] messageBytes)
         {
             if (_networkStream == null || !_connected)
             {
@@ -99,7 +99,7 @@ namespace Network
                 return;
             }
 
-            int feedback = _networkBase.SendMessageToServer(ref _networkStream, message);
+            int feedback = _networkBase.SendMessageToServer(ref _networkStream, messageBytes);
             if (feedback == Network.NetworkDefine.NETWORK_ERROR)
             {
                 Debug.LogError("Failed to send message to server.");

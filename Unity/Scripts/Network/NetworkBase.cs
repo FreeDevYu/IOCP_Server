@@ -37,15 +37,28 @@ namespace Network
             }
         }
 
-        public int SendMessageToServer(ref NetworkStream stream, string message)
+        public int SendMessageToServer(ref NetworkStream stream, byte[] messageBytes)
         {
             if (stream == null) 
                 return Network.NetworkDefine.NETWORK_ERROR;
 
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            stream.Write(data, 0, data.Length);
-            Debug.Log("메시지 전송됨");
-            return Network.NetworkDefine.NETWORK_OK;
+            try
+            {
+                stream.Write(messageBytes, 0, messageBytes.Length);
+                stream.Flush();
+                Debug.Log("메시지 전송됨");
+                return Network.NetworkDefine.NETWORK_OK;
+            }
+            catch (IOException ioEx)
+            {
+                Debug.LogError($"네트워크 오류: {ioEx.Message}");
+                return Network.NetworkDefine.NETWORK_ERROR;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"알 수 없는 오류: {ex.Message}");
+                return Network.NetworkDefine.NETWORK_ERROR;
+            }
         }
 
         public int Receive(NetworkStream stream, MessageBuilder messageBuilder, byte[] receiveBuffer) // client.GetStream
@@ -68,6 +81,5 @@ namespace Network
                 return Network.NetworkDefine.NETWORK_ERROR;
             }
         }
-
     }
 }

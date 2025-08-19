@@ -22,7 +22,7 @@ public class MessageReadModule
     {
         PlayerManager = playerManager;
 
-        _dicMessageHandler.Add(protocol.MESSAGETYPE.REQUEST_REGISTER, new RESPONSE_REGISTER());
+        _dicMessageHandler.Add(protocol.MESSAGETYPE.RESPONSE_REGISTER, new RESPONSE_REGISTER());
     }
 
     public void Process(Network.MessageData messageData)

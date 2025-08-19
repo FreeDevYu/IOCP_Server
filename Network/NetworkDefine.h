@@ -78,30 +78,6 @@ namespace Network
             BodySize = -1;
         }
 
-	//	// MessageBuilder에서 동적할당된 body를 이용하여 MessageData 객체를 생성
-    //   MessageData(DWORD completionKey, char* messageBuffer)
-    //   {
-    //       if (messageBuffer != nullptr)
-    //       {
-    //           std::memcpy(&Header, messageBuffer, sizeof(MessageHeader));
-    //           if (Header.BodySize > 0)
-    //           {
-    //               CompletionKey = completionKey;
-    //               BodySize = Header.BodySize;
-    //
-    //               // 아 대입한게문제가아니라 header가 포함된 buffer라 문제가생겼구나
-    //               Body = new char[BodySize];
-    //               std::memcpy(Body, messageBuffer + sizeof(MessageHeader), BodySize);
-    //               //Body = messageBuffer;
-    //               return;
-    //           }
-    //       }
-    //
-    //       CompletionKey = -1;
-    //       Body = nullptr;
-    //       BodySize = -1;
-    //   }
-    //
 		//  앞 2개가 지역변수로 설정되고있기때문에 복사생성해야한다.
         MessageData(DWORD completionKey, MessageHeader header, char* flatbufferBody)
         {

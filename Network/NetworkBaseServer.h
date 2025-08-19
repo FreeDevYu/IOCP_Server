@@ -11,12 +11,13 @@
 #include "NetworkDefine.h"
 
 #include "../ThirdParty/flatbuffers/flatbuffers.h"
-#include "NETWORK_PROTOCOL_generated.h"
+
 
 namespace Network
 {
 	class NetworkBaseServer : public DefaultLock
 	{
+	public:
 		struct MessageDispatcher
 		{
 			std::function<void(Network::NetworkBaseServer&, std::shared_ptr<Network::MessageData>)> ProtocolFunction;
@@ -66,7 +67,7 @@ namespace Network
 
 		Network::OverlappedManager* _overlappedManager;
 		Network::ClientManager* _clientManager;
-		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
+		
 
 	protected:
 		void Initialize(int maxClient, int overlappedCount);

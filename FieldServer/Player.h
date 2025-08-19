@@ -28,12 +28,12 @@ namespace Field
 		void Initialize(const DWORD completionKey, const DWORD registerTime, std::function<void(const std::string&, const std::string&)> debugLogCallback);
 		void Register(const std::string& serverName);
 		DWORD GetCompletionKey() const;
-		//std::string GetServerName() const;
+		std::string GetPlayerID() const;
 
 	private:
 		DWORD _completionKey; // 플레이어의 고유 키
 		OnlineStatus _onlineStatus; // 서버 상태
-		//std::string _serverName; // 서버 이름
+		std::string _playerID; // 서버 이름
 
 		DWORD _registerTime; // 서버 등록 시간
 

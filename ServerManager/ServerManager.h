@@ -7,7 +7,7 @@
 #include "ServerManagerDefine.h"
 #include "Player.h"
 #include <winhttp.h>
-
+#include "../ThirdParty/protocol/SERVER_PROTOCOL_generated.h"
 
 namespace Manager
 {
@@ -36,6 +36,7 @@ namespace Manager
 		int DisconnectClient(DWORD completionKey) override;
 
 	private:
+		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
 		tbb::concurrent_queue<std::shared_ptr<Network::MessageData>> _messageQueue;
 		void RecvMessageProcess();
 		void ReadMessage(std::shared_ptr<Network::MessageData> messageData);

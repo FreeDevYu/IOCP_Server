@@ -5,6 +5,7 @@ namespace Field
 	Player::Player()
 		: _completionKey(0)
 		, _onlineStatus(OnlineStatus::NOT_REGIST)
+		, _playerID("")
 		, _lastResponseTime(0)
 		, _debugLogCallback(nullptr)
 	{
@@ -14,6 +15,7 @@ namespace Field
 	{
 		_completionKey = 0;
 		_onlineStatus = OnlineStatus::OFFLINE;
+		_playerID = "";
 		_lastResponseTime = 0;
 		_debugLogCallback = nullptr;
 	}
@@ -27,22 +29,22 @@ namespace Field
 		_debugLogCallback = debugLogCallback;
 	}
 
-	//void Player::Register(const std::string& serverName)
-	//{
-	//	_serverName = serverName;
-	//	_onlineStatus = OnlineStatus::REQUEST; // 서버 등록 요청 상태로 변경
-	//	_lastResponseTime = GetTickCount(); // 현재 시간으로 초기화
-	//}
+	void Player::Register(const std::string& playerID)
+	{
+		_playerID = playerID;
+		_onlineStatus = OnlineStatus::REQUEST; // 서버 등록 요청 상태로 변경
+		_lastResponseTime = GetTickCount(); // 현재 시간으로 초기화
+	}
 
 	DWORD Player::GetCompletionKey() const
 	{
 		return _completionKey;
 	}
 
-//	std::string Player::GetServerName() const
-//	{
-//		return _serverName;
-//	}
+	std::string Player::GetPlayerID() const
+	{
+		return _playerID;
+	}
 
 	void Player::DebugLog(const std::string& type, const std::string& message)
 	{

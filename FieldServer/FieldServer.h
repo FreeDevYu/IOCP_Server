@@ -6,6 +6,7 @@
 
 #include "oneTBB/include/oneapi/tbb/concurrent_queue.h"
 #include "oneTBB/include/oneapi/tbb/concurrent_map.h"
+#include "../ThirdParty/protocol/SERVER_PROTOCOL_generated.h"
 
 namespace Field
 {
@@ -30,6 +31,7 @@ namespace Field
 		void ProcessHeartBeat() override;
 
 	private:
+		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
 		tbb::concurrent_queue<std::shared_ptr<Network::MessageData>> _messageQueue;
 		void RecvMessageProcess();
 		void ReadMessage(std::shared_ptr<Network::MessageData> messageData);
@@ -48,5 +50,11 @@ namespace Field
 		void SettingExternalCommands();
 		void ReceiveExternalCommand(std::string& input);
 		void SendTelegramMessage(const std::string& message);
+
+	private:
+		void INNER_CLOSE_CLIENT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
+
 	};
 }

@@ -17,6 +17,7 @@ namespace Field
 		// 설정 방법 정의 필요함
 		_serverPort = 9091;
 		_hostName = "FieldServer";
+		_serverOn = true;
 		//
 
 		int maxClient = Field::FieldServerDefine::Instance().GetMaxClient();

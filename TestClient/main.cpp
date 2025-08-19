@@ -7,7 +7,7 @@
 #include <ws2tcpip.h>
 
 #include "../ThirdParty/flatbuffers/flatbuffers.h"
-#include "../Network/MESSAGE_PROTOCOL_generated.h"
+#include "../ThirdParty/protocol/SERVER_PROTOCOL_generated.h"
 #include "../Network/MessageBuilder.h"
 
 Network::MessageBuilder messageBuilder;
