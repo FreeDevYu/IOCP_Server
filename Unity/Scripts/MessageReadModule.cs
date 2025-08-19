@@ -48,11 +48,7 @@ public class RESPONSE_REGISTER : IMessageReadHandler
         string playerID = message.PlayerId;
         bool feedback = message.Feedback;
 
-        Player targetPlayer = module.PlayerManager.FindPlayerByID(playerID);
-        if (targetPlayer == null)
-            return;
-
-
+        module.PlayerManager.CreatePlayerCharacter(playerID);
         Debug.Log($"RESPONSE_REGISTER: Feedback = {message.Feedback}");
     }
 }

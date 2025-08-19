@@ -49,11 +49,6 @@ public class PlayerManager : MonoBehaviour
         {
             DestroyPlayer();
         }
-
-        if(Input.GetKeyDown(KeyCode.E))
-        {
-            _currentPlayer.Regist();
-        }
     }
 
     private void CreatePlayer()
@@ -77,6 +72,8 @@ public class PlayerManager : MonoBehaviour
         {
             Debug.Log("Player created Fail");
         }
+
+        _currentPlayer.Regist();
     }
 
     private void DestroyPlayer()
@@ -100,6 +97,18 @@ public class PlayerManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void CreatePlayerCharacter(string playerID)
+    {
+        Player targetPlayer = FindPlayerByID(playerID);
+        if (targetPlayer == null)
+            return;
+
+        PlayerCharacter playerCharacter = new PlayerCharacter();// 실제로는 케릭터에서 모델링key를 받아서 getcomponent할 생각중.
+        playerCharacter.Initialized(playerID);
+
+
     }
 
     //초기화없이 강제종료시 c#의 쓰레드가 남는 문제가 있어서, 안정적 초기화를 위한 코드.
