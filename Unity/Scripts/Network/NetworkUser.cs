@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Net.Sockets;
-using Network;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace Network
@@ -117,7 +113,7 @@ namespace Network
 
                 if (result == Network.NetworkDefine.NETWORK_ERROR)
                 {
-                    Debug.LogError("Failed to receive data from server.");
+                   // Debug.LogError("Failed to receive data from server.");
                 }
                 else
                 {

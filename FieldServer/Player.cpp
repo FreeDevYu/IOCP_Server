@@ -27,6 +27,12 @@ namespace Field
 		_onlineStatus = OnlineStatus::NOT_REGIST; // 초기 상태는 ONLINE로 설정
 		_timeOutCount = 0;
 		_debugLogCallback = debugLogCallback;
+
+		_moveSpeed = 5.0f; // 이동 속도 설정 (예: 초당 5 유닛)
+		_rotation = 0.0f; // 초기 회전 각도 설정
+		_xPosition = 0.0f;
+		_yPosition = 0.0f;
+		_zPosition = 0.0f;
 	}
 
 	void Player::Register(const std::string& playerID)
@@ -104,4 +110,34 @@ namespace Field
 		_timeOutCount = 0;
 	}
 
+	void Player::MovePosition(int8_t direction, float duration, float& angleDeg)
+	{
+		float moveDistance = _moveSpeed * duration;
+
+		// 방향별 고정 각도 (도 단위)
+		switch (direction)
+		{
+		case 1: angleDeg = 0.0f;    break;
+		case 2: angleDeg = 180.0f;  break;
+		case 3: angleDeg = -90.0f;  break;
+		case 4: angleDeg = 90.0f;   break;
+		case 5: angleDeg = -45.0f;  break;
+		case 6: angleDeg = 45.0f;   break;
+		case 7: angleDeg = -135.0f; break;
+		case 8: angleDeg = 135.0f;  break;
+		case 0:
+		default: return; // 움직이지 않음
+		}
+
+		// 각도를 라디안으로 변환
+		float radians = angleDeg * M_PI / 180.0f;
+
+		// 방향 벡터 계산
+		float dirX = sin(radians);
+		float dirZ = cos(radians);
+
+		// 위치 갱신
+		_xPosition += dirX * moveDistance;
+		_zPosition += dirZ * moveDistance;
+	}
 }

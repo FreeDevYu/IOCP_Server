@@ -1,8 +1,15 @@
 #pragma once
+
 #include<functional>
 #include <WinSock2.h>
 #include <string>
+#include <cmath>
+
 #include "FieldServerDefine.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 namespace Field
 {
@@ -43,11 +50,21 @@ namespace Field
 
 		std::function<void(const std::string&, const std::string&)> _debugLogCallback;
 
+		float _moveSpeed;
+		float _rotation; // Yaw 각도 (0~360)
+
+	public://임시
+		float _xPosition = 0.0f;
+		float _yPosition = 0.0f;
+		float _zPosition = 0.0f;
+		float GetMoveSpeed() const { return _moveSpeed; }
+
 	public:
 		bool IsHeartbeatTarget() const;
 		bool CheckKickoutTarget(unsigned long long currentTime);
 		void SaveRequestHearbeatTime();
 		void SaveResponseHeartBeat();
+		void MovePosition(int8_t direction, float duration, float& angleDeg);
 
 	private:
 		void DebugLog(const std::string& type, const std::string& message);

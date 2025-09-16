@@ -3,10 +3,10 @@
 #include "FieldServerDefine.h"
 #include "Player.h"
 #include <winhttp.h>
-
-#include "oneTBB/include/oneapi/tbb/concurrent_queue.h"
-#include "oneTBB/include/oneapi/tbb/concurrent_map.h"
 #include "../ThirdParty/protocol/SERVER_PROTOCOL_generated.h"
+#include "oneapi-tbb-2022.2.0/include/oneapi/tbb/concurrent_queue.h"
+#include "oneapi-tbb-2022.2.0/include/oneapi/tbb/concurrent_map.h"
+
 
 namespace Field
 {
@@ -18,6 +18,7 @@ namespace Field
 
 	private:
 		tbb::concurrent_map<DWORD, Field::Player*> _playerMap;
+		tbb::concurrent_queue<DWORD> _newUserQueue;
 
 	public:
 		int PowerOnSequence() override; // 서버 시작 시 초기화 작업을 수행합니다.
@@ -29,6 +30,9 @@ namespace Field
 		int DisconnectClient(DWORD completionKey) override;
 		void PlayerOnlineCheck(unsigned long long currentTime) override;
 		void ProcessHeartBeat() override;
+
+	private :
+		void UpdateUserList();
 
 	private:
 		MessageDispatcher _messageDispatchers[protocol::MESSAGETYPE::MESSAGETYPE_MAX];
@@ -55,6 +59,6 @@ namespace Field
 		void INNER_CLOSE_CLIENT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void REQUEST_REGISTER(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 		void RESPONSE_HEARTBEAT(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
-
+		void REQUEST_PLAYERMOVE(Network::NetworkBaseServer& server, std::shared_ptr<Network::MessageData> receiveMessage);
 	};
 }

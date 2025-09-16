@@ -30,6 +30,12 @@ struct REQUEST_HEARTBEATBuilder;
 struct RESPONSE_HEARTBEAT;
 struct RESPONSE_HEARTBEATBuilder;
 
+struct NOTICE_ENTRANCE_STAGE;
+struct NOTICE_ENTRANCE_STAGEBuilder;
+
+struct NOTICE_EXIT_STAGE;
+struct NOTICE_EXIT_STAGEBuilder;
+
 struct REQUEST_PLAYERMOVE;
 struct REQUEST_PLAYERMOVEBuilder;
 
@@ -49,15 +55,17 @@ enum MESSAGETYPE : int32_t {
   MESSAGETYPE_RESPONSE_REGISTER = 3,
   MESSAGETYPE_REQUEST_HEARTBEAT = 4,
   MESSAGETYPE_RESPONSE_HEARTBEAT = 5,
-  MESSAGETYPE_REQUEST_PLAYERMOVE = 100,
-  MESSAGETYPE_RESPONSE_PLAYERMOVE = 101,
-  MESSAGETYPE_NOTICE_PLAYERPOSITION = 102,
-  MESSAGETYPE_END = 103,
+  MESSAGETYPE_NOTICE_ENTRANCE_STAGE = 100,
+  MESSAGETYPE_NOTICE_EXIT_STAGE = 101,
+  MESSAGETYPE_REQUEST_PLAYERMOVE = 102,
+  MESSAGETYPE_RESPONSE_PLAYERMOVE = 103,
+  MESSAGETYPE_NOTICE_PLAYERPOSITION = 104,
+  MESSAGETYPE_END = 105,
   MESSAGETYPE_MIN = MESSAGETYPE_BEGIN,
   MESSAGETYPE_MAX = MESSAGETYPE_END
 };
 
-inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[10] {
+inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[12] {
   static const MESSAGETYPE values[] = {
     MESSAGETYPE_BEGIN,
     MESSAGETYPE_INNER_CLOSE_CLIENT,
@@ -65,6 +73,8 @@ inline const MESSAGETYPE (&EnumValuesMESSAGETYPE())[10] {
     MESSAGETYPE_RESPONSE_REGISTER,
     MESSAGETYPE_REQUEST_HEARTBEAT,
     MESSAGETYPE_RESPONSE_HEARTBEAT,
+    MESSAGETYPE_NOTICE_ENTRANCE_STAGE,
+    MESSAGETYPE_NOTICE_EXIT_STAGE,
     MESSAGETYPE_REQUEST_PLAYERMOVE,
     MESSAGETYPE_RESPONSE_PLAYERMOVE,
     MESSAGETYPE_NOTICE_PLAYERPOSITION,
@@ -81,12 +91,65 @@ inline const char *EnumNameMESSAGETYPE(MESSAGETYPE e) {
     case MESSAGETYPE_RESPONSE_REGISTER: return "RESPONSE_REGISTER";
     case MESSAGETYPE_REQUEST_HEARTBEAT: return "REQUEST_HEARTBEAT";
     case MESSAGETYPE_RESPONSE_HEARTBEAT: return "RESPONSE_HEARTBEAT";
+    case MESSAGETYPE_NOTICE_ENTRANCE_STAGE: return "NOTICE_ENTRANCE_STAGE";
+    case MESSAGETYPE_NOTICE_EXIT_STAGE: return "NOTICE_EXIT_STAGE";
     case MESSAGETYPE_REQUEST_PLAYERMOVE: return "REQUEST_PLAYERMOVE";
     case MESSAGETYPE_RESPONSE_PLAYERMOVE: return "RESPONSE_PLAYERMOVE";
     case MESSAGETYPE_NOTICE_PLAYERPOSITION: return "NOTICE_PLAYERPOSITION";
     case MESSAGETYPE_END: return "END";
     default: return "";
   }
+}
+
+enum MoveDirection : int8_t {
+  MoveDirection_NONE = 0,
+  MoveDirection_FORWARD = 1,
+  MoveDirection_BACKWARD = 2,
+  MoveDirection_LEFT = 3,
+  MoveDirection_RIGHT = 4,
+  MoveDirection_LEFT_FORWARD = 5,
+  MoveDirection_RIGHT_FORWARD = 6,
+  MoveDirection_LEFT_BACKWARD = 7,
+  MoveDirection_RIGHT_BACKWARD = 8,
+  MoveDirection_MIN = MoveDirection_NONE,
+  MoveDirection_MAX = MoveDirection_RIGHT_BACKWARD
+};
+
+inline const MoveDirection (&EnumValuesMoveDirection())[9] {
+  static const MoveDirection values[] = {
+    MoveDirection_NONE,
+    MoveDirection_FORWARD,
+    MoveDirection_BACKWARD,
+    MoveDirection_LEFT,
+    MoveDirection_RIGHT,
+    MoveDirection_LEFT_FORWARD,
+    MoveDirection_RIGHT_FORWARD,
+    MoveDirection_LEFT_BACKWARD,
+    MoveDirection_RIGHT_BACKWARD
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMoveDirection() {
+  static const char * const names[10] = {
+    "NONE",
+    "FORWARD",
+    "BACKWARD",
+    "LEFT",
+    "RIGHT",
+    "LEFT_FORWARD",
+    "RIGHT_FORWARD",
+    "LEFT_BACKWARD",
+    "RIGHT_BACKWARD",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMoveDirection(MoveDirection e) {
+  if (::flatbuffers::IsOutRange(e, MoveDirection_NONE, MoveDirection_RIGHT_BACKWARD)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMoveDirection()[index];
 }
 
 enum Content : uint8_t {
@@ -96,14 +159,16 @@ enum Content : uint8_t {
   Content_RESPONSE_REGISTER = 3,
   Content_REQUEST_HEARTBEAT = 4,
   Content_RESPONSE_HEARTBEAT = 5,
-  Content_REQUEST_PLAYERMOVE = 6,
-  Content_RESPONSE_PLAYERMOVE = 7,
-  Content_NOTICE_PLAYERPOSITION = 8,
+  Content_NOTICE_ENTRANCE_STAGE = 6,
+  Content_NOTICE_EXIT_STAGE = 7,
+  Content_REQUEST_PLAYERMOVE = 8,
+  Content_RESPONSE_PLAYERMOVE = 9,
+  Content_NOTICE_PLAYERPOSITION = 10,
   Content_MIN = Content_NONE,
   Content_MAX = Content_NOTICE_PLAYERPOSITION
 };
 
-inline const Content (&EnumValuesContent())[9] {
+inline const Content (&EnumValuesContent())[11] {
   static const Content values[] = {
     Content_NONE,
     Content_INNER_CLOSE_CLIENT,
@@ -111,6 +176,8 @@ inline const Content (&EnumValuesContent())[9] {
     Content_RESPONSE_REGISTER,
     Content_REQUEST_HEARTBEAT,
     Content_RESPONSE_HEARTBEAT,
+    Content_NOTICE_ENTRANCE_STAGE,
+    Content_NOTICE_EXIT_STAGE,
     Content_REQUEST_PLAYERMOVE,
     Content_RESPONSE_PLAYERMOVE,
     Content_NOTICE_PLAYERPOSITION
@@ -119,13 +186,15 @@ inline const Content (&EnumValuesContent())[9] {
 }
 
 inline const char * const *EnumNamesContent() {
-  static const char * const names[10] = {
+  static const char * const names[12] = {
     "NONE",
     "INNER_CLOSE_CLIENT",
     "REQUEST_REGISTER",
     "RESPONSE_REGISTER",
     "REQUEST_HEARTBEAT",
     "RESPONSE_HEARTBEAT",
+    "NOTICE_ENTRANCE_STAGE",
+    "NOTICE_EXIT_STAGE",
     "REQUEST_PLAYERMOVE",
     "RESPONSE_PLAYERMOVE",
     "NOTICE_PLAYERPOSITION",
@@ -162,6 +231,14 @@ template<> struct ContentTraits<protocol::REQUEST_HEARTBEAT> {
 
 template<> struct ContentTraits<protocol::RESPONSE_HEARTBEAT> {
   static const Content enum_value = Content_RESPONSE_HEARTBEAT;
+};
+
+template<> struct ContentTraits<protocol::NOTICE_ENTRANCE_STAGE> {
+  static const Content enum_value = Content_NOTICE_ENTRANCE_STAGE;
+};
+
+template<> struct ContentTraits<protocol::NOTICE_EXIT_STAGE> {
+  static const Content enum_value = Content_NOTICE_EXIT_STAGE;
 };
 
 template<> struct ContentTraits<protocol::REQUEST_PLAYERMOVE> {
@@ -462,26 +539,160 @@ inline ::flatbuffers::Offset<RESPONSE_HEARTBEAT> CreateRESPONSE_HEARTBEATDirect(
       feedback);
 }
 
-struct REQUEST_PLAYERMOVE FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef REQUEST_PLAYERMOVEBuilder Builder;
+struct NOTICE_ENTRANCE_STAGE FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef NOTICE_ENTRANCE_STAGEBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PLAYER_ID = 4,
-    VT_ROTATION_X = 6,
-    VT_MOVE_SPEED = 8,
-    VT_MOVE_START_TIME = 10,
-    VT_DURATION = 12
+    VT_POSITION_X = 6,
+    VT_POSITION_Y = 8,
+    VT_POSITION_Z = 10
   };
   const ::flatbuffers::String *player_id() const {
     return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
   }
-  float rotation_x() const {
-    return GetField<float>(VT_ROTATION_X, 0.0f);
+  float position_x() const {
+    return GetField<float>(VT_POSITION_X, 0.0f);
+  }
+  float position_y() const {
+    return GetField<float>(VT_POSITION_Y, 0.0f);
+  }
+  float position_z() const {
+    return GetField<float>(VT_POSITION_Z, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PLAYER_ID) &&
+           verifier.VerifyString(player_id()) &&
+           VerifyField<float>(verifier, VT_POSITION_X, 4) &&
+           VerifyField<float>(verifier, VT_POSITION_Y, 4) &&
+           VerifyField<float>(verifier, VT_POSITION_Z, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct NOTICE_ENTRANCE_STAGEBuilder {
+  typedef NOTICE_ENTRANCE_STAGE Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
+    fbb_.AddOffset(NOTICE_ENTRANCE_STAGE::VT_PLAYER_ID, player_id);
+  }
+  void add_position_x(float position_x) {
+    fbb_.AddElement<float>(NOTICE_ENTRANCE_STAGE::VT_POSITION_X, position_x, 0.0f);
+  }
+  void add_position_y(float position_y) {
+    fbb_.AddElement<float>(NOTICE_ENTRANCE_STAGE::VT_POSITION_Y, position_y, 0.0f);
+  }
+  void add_position_z(float position_z) {
+    fbb_.AddElement<float>(NOTICE_ENTRANCE_STAGE::VT_POSITION_Z, position_z, 0.0f);
+  }
+  explicit NOTICE_ENTRANCE_STAGEBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<NOTICE_ENTRANCE_STAGE> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<NOTICE_ENTRANCE_STAGE>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<NOTICE_ENTRANCE_STAGE> CreateNOTICE_ENTRANCE_STAGE(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> player_id = 0,
+    float position_x = 0.0f,
+    float position_y = 0.0f,
+    float position_z = 0.0f) {
+  NOTICE_ENTRANCE_STAGEBuilder builder_(_fbb);
+  builder_.add_position_z(position_z);
+  builder_.add_position_y(position_y);
+  builder_.add_position_x(position_x);
+  builder_.add_player_id(player_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<NOTICE_ENTRANCE_STAGE> CreateNOTICE_ENTRANCE_STAGEDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *player_id = nullptr,
+    float position_x = 0.0f,
+    float position_y = 0.0f,
+    float position_z = 0.0f) {
+  auto player_id__ = player_id ? _fbb.CreateString(player_id) : 0;
+  return protocol::CreateNOTICE_ENTRANCE_STAGE(
+      _fbb,
+      player_id__,
+      position_x,
+      position_y,
+      position_z);
+}
+
+struct NOTICE_EXIT_STAGE FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef NOTICE_EXIT_STAGEBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYER_ID = 4
+  };
+  const ::flatbuffers::String *player_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PLAYER_ID) &&
+           verifier.VerifyString(player_id()) &&
+           verifier.EndTable();
+  }
+};
+
+struct NOTICE_EXIT_STAGEBuilder {
+  typedef NOTICE_EXIT_STAGE Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
+    fbb_.AddOffset(NOTICE_EXIT_STAGE::VT_PLAYER_ID, player_id);
+  }
+  explicit NOTICE_EXIT_STAGEBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<NOTICE_EXIT_STAGE> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<NOTICE_EXIT_STAGE>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<NOTICE_EXIT_STAGE> CreateNOTICE_EXIT_STAGE(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> player_id = 0) {
+  NOTICE_EXIT_STAGEBuilder builder_(_fbb);
+  builder_.add_player_id(player_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<NOTICE_EXIT_STAGE> CreateNOTICE_EXIT_STAGEDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *player_id = nullptr) {
+  auto player_id__ = player_id ? _fbb.CreateString(player_id) : 0;
+  return protocol::CreateNOTICE_EXIT_STAGE(
+      _fbb,
+      player_id__);
+}
+
+struct REQUEST_PLAYERMOVE FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef REQUEST_PLAYERMOVEBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYER_ID = 4,
+    VT_DIRECTION = 6,
+    VT_MOVE_SPEED = 8,
+    VT_DURATION = 10
+  };
+  const ::flatbuffers::String *player_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
+  }
+  protocol::MoveDirection direction() const {
+    return static_cast<protocol::MoveDirection>(GetField<int8_t>(VT_DIRECTION, 0));
   }
   float move_speed() const {
     return GetField<float>(VT_MOVE_SPEED, 0.0f);
-  }
-  float move_start_time() const {
-    return GetField<float>(VT_MOVE_START_TIME, 0.0f);
   }
   float duration() const {
     return GetField<float>(VT_DURATION, 0.0f);
@@ -490,9 +701,8 @@ struct REQUEST_PLAYERMOVE FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_PLAYER_ID) &&
            verifier.VerifyString(player_id()) &&
-           VerifyField<float>(verifier, VT_ROTATION_X, 4) &&
+           VerifyField<int8_t>(verifier, VT_DIRECTION, 1) &&
            VerifyField<float>(verifier, VT_MOVE_SPEED, 4) &&
-           VerifyField<float>(verifier, VT_MOVE_START_TIME, 4) &&
            VerifyField<float>(verifier, VT_DURATION, 4) &&
            verifier.EndTable();
   }
@@ -505,14 +715,11 @@ struct REQUEST_PLAYERMOVEBuilder {
   void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
     fbb_.AddOffset(REQUEST_PLAYERMOVE::VT_PLAYER_ID, player_id);
   }
-  void add_rotation_x(float rotation_x) {
-    fbb_.AddElement<float>(REQUEST_PLAYERMOVE::VT_ROTATION_X, rotation_x, 0.0f);
+  void add_direction(protocol::MoveDirection direction) {
+    fbb_.AddElement<int8_t>(REQUEST_PLAYERMOVE::VT_DIRECTION, static_cast<int8_t>(direction), 0);
   }
   void add_move_speed(float move_speed) {
     fbb_.AddElement<float>(REQUEST_PLAYERMOVE::VT_MOVE_SPEED, move_speed, 0.0f);
-  }
-  void add_move_start_time(float move_start_time) {
-    fbb_.AddElement<float>(REQUEST_PLAYERMOVE::VT_MOVE_START_TIME, move_start_time, 0.0f);
   }
   void add_duration(float duration) {
     fbb_.AddElement<float>(REQUEST_PLAYERMOVE::VT_DURATION, duration, 0.0f);
@@ -531,33 +738,29 @@ struct REQUEST_PLAYERMOVEBuilder {
 inline ::flatbuffers::Offset<REQUEST_PLAYERMOVE> CreateREQUEST_PLAYERMOVE(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> player_id = 0,
-    float rotation_x = 0.0f,
+    protocol::MoveDirection direction = protocol::MoveDirection_NONE,
     float move_speed = 0.0f,
-    float move_start_time = 0.0f,
     float duration = 0.0f) {
   REQUEST_PLAYERMOVEBuilder builder_(_fbb);
   builder_.add_duration(duration);
-  builder_.add_move_start_time(move_start_time);
   builder_.add_move_speed(move_speed);
-  builder_.add_rotation_x(rotation_x);
   builder_.add_player_id(player_id);
+  builder_.add_direction(direction);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<REQUEST_PLAYERMOVE> CreateREQUEST_PLAYERMOVEDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *player_id = nullptr,
-    float rotation_x = 0.0f,
+    protocol::MoveDirection direction = protocol::MoveDirection_NONE,
     float move_speed = 0.0f,
-    float move_start_time = 0.0f,
     float duration = 0.0f) {
   auto player_id__ = player_id ? _fbb.CreateString(player_id) : 0;
   return protocol::CreateREQUEST_PLAYERMOVE(
       _fbb,
       player_id__,
-      rotation_x,
+      direction,
       move_speed,
-      move_start_time,
       duration);
 }
 
@@ -606,12 +809,24 @@ struct NOTICE_PLAYERPOSITION FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   typedef NOTICE_PLAYERPOSITIONBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PLAYER_ID = 4,
-    VT_POSITION_X = 6,
-    VT_POSITION_Y = 8,
-    VT_POSITION_Z = 10
+    VT_DIRECTION = 6,
+    VT_MOVE_SPEED = 8,
+    VT_DURATION = 10,
+    VT_POSITION_X = 12,
+    VT_POSITION_Y = 14,
+    VT_POSITION_Z = 16
   };
   const ::flatbuffers::String *player_id() const {
     return GetPointer<const ::flatbuffers::String *>(VT_PLAYER_ID);
+  }
+  protocol::MoveDirection direction() const {
+    return static_cast<protocol::MoveDirection>(GetField<int8_t>(VT_DIRECTION, 0));
+  }
+  float move_speed() const {
+    return GetField<float>(VT_MOVE_SPEED, 0.0f);
+  }
+  float duration() const {
+    return GetField<float>(VT_DURATION, 0.0f);
   }
   float position_x() const {
     return GetField<float>(VT_POSITION_X, 0.0f);
@@ -626,6 +841,9 @@ struct NOTICE_PLAYERPOSITION FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_PLAYER_ID) &&
            verifier.VerifyString(player_id()) &&
+           VerifyField<int8_t>(verifier, VT_DIRECTION, 1) &&
+           VerifyField<float>(verifier, VT_MOVE_SPEED, 4) &&
+           VerifyField<float>(verifier, VT_DURATION, 4) &&
            VerifyField<float>(verifier, VT_POSITION_X, 4) &&
            VerifyField<float>(verifier, VT_POSITION_Y, 4) &&
            VerifyField<float>(verifier, VT_POSITION_Z, 4) &&
@@ -639,6 +857,15 @@ struct NOTICE_PLAYERPOSITIONBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_player_id(::flatbuffers::Offset<::flatbuffers::String> player_id) {
     fbb_.AddOffset(NOTICE_PLAYERPOSITION::VT_PLAYER_ID, player_id);
+  }
+  void add_direction(protocol::MoveDirection direction) {
+    fbb_.AddElement<int8_t>(NOTICE_PLAYERPOSITION::VT_DIRECTION, static_cast<int8_t>(direction), 0);
+  }
+  void add_move_speed(float move_speed) {
+    fbb_.AddElement<float>(NOTICE_PLAYERPOSITION::VT_MOVE_SPEED, move_speed, 0.0f);
+  }
+  void add_duration(float duration) {
+    fbb_.AddElement<float>(NOTICE_PLAYERPOSITION::VT_DURATION, duration, 0.0f);
   }
   void add_position_x(float position_x) {
     fbb_.AddElement<float>(NOTICE_PLAYERPOSITION::VT_POSITION_X, position_x, 0.0f);
@@ -663,6 +890,9 @@ struct NOTICE_PLAYERPOSITIONBuilder {
 inline ::flatbuffers::Offset<NOTICE_PLAYERPOSITION> CreateNOTICE_PLAYERPOSITION(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> player_id = 0,
+    protocol::MoveDirection direction = protocol::MoveDirection_NONE,
+    float move_speed = 0.0f,
+    float duration = 0.0f,
     float position_x = 0.0f,
     float position_y = 0.0f,
     float position_z = 0.0f) {
@@ -670,13 +900,19 @@ inline ::flatbuffers::Offset<NOTICE_PLAYERPOSITION> CreateNOTICE_PLAYERPOSITION(
   builder_.add_position_z(position_z);
   builder_.add_position_y(position_y);
   builder_.add_position_x(position_x);
+  builder_.add_duration(duration);
+  builder_.add_move_speed(move_speed);
   builder_.add_player_id(player_id);
+  builder_.add_direction(direction);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<NOTICE_PLAYERPOSITION> CreateNOTICE_PLAYERPOSITIONDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *player_id = nullptr,
+    protocol::MoveDirection direction = protocol::MoveDirection_NONE,
+    float move_speed = 0.0f,
+    float duration = 0.0f,
     float position_x = 0.0f,
     float position_y = 0.0f,
     float position_z = 0.0f) {
@@ -684,6 +920,9 @@ inline ::flatbuffers::Offset<NOTICE_PLAYERPOSITION> CreateNOTICE_PLAYERPOSITIOND
   return protocol::CreateNOTICE_PLAYERPOSITION(
       _fbb,
       player_id__,
+      direction,
+      move_speed,
+      duration,
       position_x,
       position_y,
       position_z);
@@ -720,6 +959,12 @@ struct SERVER_PROTOCOL FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const protocol::RESPONSE_HEARTBEAT *content_as_RESPONSE_HEARTBEAT() const {
     return content_type() == protocol::Content_RESPONSE_HEARTBEAT ? static_cast<const protocol::RESPONSE_HEARTBEAT *>(content()) : nullptr;
+  }
+  const protocol::NOTICE_ENTRANCE_STAGE *content_as_NOTICE_ENTRANCE_STAGE() const {
+    return content_type() == protocol::Content_NOTICE_ENTRANCE_STAGE ? static_cast<const protocol::NOTICE_ENTRANCE_STAGE *>(content()) : nullptr;
+  }
+  const protocol::NOTICE_EXIT_STAGE *content_as_NOTICE_EXIT_STAGE() const {
+    return content_type() == protocol::Content_NOTICE_EXIT_STAGE ? static_cast<const protocol::NOTICE_EXIT_STAGE *>(content()) : nullptr;
   }
   const protocol::REQUEST_PLAYERMOVE *content_as_REQUEST_PLAYERMOVE() const {
     return content_type() == protocol::Content_REQUEST_PLAYERMOVE ? static_cast<const protocol::REQUEST_PLAYERMOVE *>(content()) : nullptr;
@@ -758,6 +1003,14 @@ template<> inline const protocol::REQUEST_HEARTBEAT *SERVER_PROTOCOL::content_as
 
 template<> inline const protocol::RESPONSE_HEARTBEAT *SERVER_PROTOCOL::content_as<protocol::RESPONSE_HEARTBEAT>() const {
   return content_as_RESPONSE_HEARTBEAT();
+}
+
+template<> inline const protocol::NOTICE_ENTRANCE_STAGE *SERVER_PROTOCOL::content_as<protocol::NOTICE_ENTRANCE_STAGE>() const {
+  return content_as_NOTICE_ENTRANCE_STAGE();
+}
+
+template<> inline const protocol::NOTICE_EXIT_STAGE *SERVER_PROTOCOL::content_as<protocol::NOTICE_EXIT_STAGE>() const {
+  return content_as_NOTICE_EXIT_STAGE();
 }
 
 template<> inline const protocol::REQUEST_PLAYERMOVE *SERVER_PROTOCOL::content_as<protocol::REQUEST_PLAYERMOVE>() const {
@@ -831,6 +1084,14 @@ inline bool VerifyContent(::flatbuffers::Verifier &verifier, const void *obj, Co
     }
     case Content_RESPONSE_HEARTBEAT: {
       auto ptr = reinterpret_cast<const protocol::RESPONSE_HEARTBEAT *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Content_NOTICE_ENTRANCE_STAGE: {
+      auto ptr = reinterpret_cast<const protocol::NOTICE_ENTRANCE_STAGE *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Content_NOTICE_EXIT_STAGE: {
+      auto ptr = reinterpret_cast<const protocol::NOTICE_EXIT_STAGE *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Content_REQUEST_PLAYERMOVE: {

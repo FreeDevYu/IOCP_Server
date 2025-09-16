@@ -17,10 +17,25 @@ public enum MESSAGETYPE : int
   RESPONSE_REGISTER = 3,
   REQUEST_HEARTBEAT = 4,
   RESPONSE_HEARTBEAT = 5,
-  REQUEST_PLAYERMOVE = 100,
-  RESPONSE_PLAYERMOVE = 101,
-  NOTICE_PLAYERPOSITION = 102,
-  END = 103,
+  NOTICE_ENTRANCE_STAGE = 100,
+  NOTICE_EXIT_STAGE = 101,
+  REQUEST_PLAYERMOVE = 102,
+  RESPONSE_PLAYERMOVE = 103,
+  NOTICE_PLAYERPOSITION = 104,
+  END = 105,
+};
+
+public enum MoveDirection : sbyte
+{
+  NONE = 0,
+  FORWARD = 1,
+  BACKWARD = 2,
+  LEFT = 3,
+  RIGHT = 4,
+  LEFT_FORWARD = 5,
+  RIGHT_FORWARD = 6,
+  LEFT_BACKWARD = 7,
+  RIGHT_BACKWARD = 8,
 };
 
 public enum Content : byte
@@ -31,9 +46,11 @@ public enum Content : byte
   RESPONSE_REGISTER = 3,
   REQUEST_HEARTBEAT = 4,
   RESPONSE_HEARTBEAT = 5,
-  REQUEST_PLAYERMOVE = 6,
-  RESPONSE_PLAYERMOVE = 7,
-  NOTICE_PLAYERPOSITION = 8,
+  NOTICE_ENTRANCE_STAGE = 6,
+  NOTICE_EXIT_STAGE = 7,
+  REQUEST_PLAYERMOVE = 8,
+  RESPONSE_PLAYERMOVE = 9,
+  NOTICE_PLAYERPOSITION = 10,
 };
 
 
@@ -59,6 +76,12 @@ static public class ContentVerify
         break;
       case Content.RESPONSE_HEARTBEAT:
         result = protocol.RESPONSE_HEARTBEATVerify.Verify(verifier, tablePos);
+        break;
+      case Content.NOTICE_ENTRANCE_STAGE:
+        result = protocol.NOTICE_ENTRANCE_STAGEVerify.Verify(verifier, tablePos);
+        break;
+      case Content.NOTICE_EXIT_STAGE:
+        result = protocol.NOTICE_EXIT_STAGEVerify.Verify(verifier, tablePos);
         break;
       case Content.REQUEST_PLAYERMOVE:
         result = protocol.REQUEST_PLAYERMOVEVerify.Verify(verifier, tablePos);
@@ -306,6 +329,107 @@ static public class RESPONSE_HEARTBEATVerify
       && verifier.VerifyTableEnd(tablePos);
   }
 }
+public struct NOTICE_ENTRANCE_STAGE : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static NOTICE_ENTRANCE_STAGE GetRootAsNOTICE_ENTRANCE_STAGE(ByteBuffer _bb) { return GetRootAsNOTICE_ENTRANCE_STAGE(_bb, new NOTICE_ENTRANCE_STAGE()); }
+  public static NOTICE_ENTRANCE_STAGE GetRootAsNOTICE_ENTRANCE_STAGE(ByteBuffer _bb, NOTICE_ENTRANCE_STAGE obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public NOTICE_ENTRANCE_STAGE __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public string PlayerId { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPlayerIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
+  public float PositionX { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float PositionY { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float PositionZ { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<protocol.NOTICE_ENTRANCE_STAGE> CreateNOTICE_ENTRANCE_STAGE(FlatBufferBuilder builder,
+      StringOffset player_idOffset = default(StringOffset),
+      float position_x = 0.0f,
+      float position_y = 0.0f,
+      float position_z = 0.0f) {
+    builder.StartTable(4);
+    NOTICE_ENTRANCE_STAGE.AddPositionZ(builder, position_z);
+    NOTICE_ENTRANCE_STAGE.AddPositionY(builder, position_y);
+    NOTICE_ENTRANCE_STAGE.AddPositionX(builder, position_x);
+    NOTICE_ENTRANCE_STAGE.AddPlayerId(builder, player_idOffset);
+    return NOTICE_ENTRANCE_STAGE.EndNOTICE_ENTRANCE_STAGE(builder);
+  }
+
+  public static void StartNOTICE_ENTRANCE_STAGE(FlatBufferBuilder builder) { builder.StartTable(4); }
+  public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
+  public static void AddPositionX(FlatBufferBuilder builder, float positionX) { builder.AddFloat(1, positionX, 0.0f); }
+  public static void AddPositionY(FlatBufferBuilder builder, float positionY) { builder.AddFloat(2, positionY, 0.0f); }
+  public static void AddPositionZ(FlatBufferBuilder builder, float positionZ) { builder.AddFloat(3, positionZ, 0.0f); }
+  public static Offset<protocol.NOTICE_ENTRANCE_STAGE> EndNOTICE_ENTRANCE_STAGE(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<protocol.NOTICE_ENTRANCE_STAGE>(o);
+  }
+}
+
+
+static public class NOTICE_ENTRANCE_STAGEVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
+      && verifier.VerifyField(tablePos, 6 /*PositionX*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 8 /*PositionY*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*PositionZ*/, 4 /*float*/, 4, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
+public struct NOTICE_EXIT_STAGE : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
+  public static NOTICE_EXIT_STAGE GetRootAsNOTICE_EXIT_STAGE(ByteBuffer _bb) { return GetRootAsNOTICE_EXIT_STAGE(_bb, new NOTICE_EXIT_STAGE()); }
+  public static NOTICE_EXIT_STAGE GetRootAsNOTICE_EXIT_STAGE(ByteBuffer _bb, NOTICE_EXIT_STAGE obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public NOTICE_EXIT_STAGE __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public string PlayerId { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetPlayerIdBytes() { return __p.__vector_as_span<byte>(4, 1); }
+#else
+  public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
+
+  public static Offset<protocol.NOTICE_EXIT_STAGE> CreateNOTICE_EXIT_STAGE(FlatBufferBuilder builder,
+      StringOffset player_idOffset = default(StringOffset)) {
+    builder.StartTable(1);
+    NOTICE_EXIT_STAGE.AddPlayerId(builder, player_idOffset);
+    return NOTICE_EXIT_STAGE.EndNOTICE_EXIT_STAGE(builder);
+  }
+
+  public static void StartNOTICE_EXIT_STAGE(FlatBufferBuilder builder) { builder.StartTable(1); }
+  public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
+  public static Offset<protocol.NOTICE_EXIT_STAGE> EndNOTICE_EXIT_STAGE(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<protocol.NOTICE_EXIT_STAGE>(o);
+  }
+}
+
+
+static public class NOTICE_EXIT_STAGEVerify
+{
+  static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+  {
+    return verifier.VerifyTableStart(tablePos)
+      && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
+      && verifier.VerifyTableEnd(tablePos);
+  }
+}
 public struct REQUEST_PLAYERMOVE : IFlatbufferObject
 {
   private Table __p;
@@ -323,32 +447,28 @@ public struct REQUEST_PLAYERMOVE : IFlatbufferObject
   public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
 #endif
   public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
-  public float RotationX { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public protocol.MoveDirection Direction { get { int o = __p.__offset(6); return o != 0 ? (protocol.MoveDirection)__p.bb.GetSbyte(o + __p.bb_pos) : protocol.MoveDirection.NONE; } }
   public float MoveSpeed { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float MoveStartTime { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Duration { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Duration { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
   public static Offset<protocol.REQUEST_PLAYERMOVE> CreateREQUEST_PLAYERMOVE(FlatBufferBuilder builder,
       StringOffset player_idOffset = default(StringOffset),
-      float rotation_x = 0.0f,
+      protocol.MoveDirection direction = protocol.MoveDirection.NONE,
       float move_speed = 0.0f,
-      float move_start_time = 0.0f,
       float duration = 0.0f) {
-    builder.StartTable(5);
+    builder.StartTable(4);
     REQUEST_PLAYERMOVE.AddDuration(builder, duration);
-    REQUEST_PLAYERMOVE.AddMoveStartTime(builder, move_start_time);
     REQUEST_PLAYERMOVE.AddMoveSpeed(builder, move_speed);
-    REQUEST_PLAYERMOVE.AddRotationX(builder, rotation_x);
     REQUEST_PLAYERMOVE.AddPlayerId(builder, player_idOffset);
+    REQUEST_PLAYERMOVE.AddDirection(builder, direction);
     return REQUEST_PLAYERMOVE.EndREQUEST_PLAYERMOVE(builder);
   }
 
-  public static void StartREQUEST_PLAYERMOVE(FlatBufferBuilder builder) { builder.StartTable(5); }
+  public static void StartREQUEST_PLAYERMOVE(FlatBufferBuilder builder) { builder.StartTable(4); }
   public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
-  public static void AddRotationX(FlatBufferBuilder builder, float rotationX) { builder.AddFloat(1, rotationX, 0.0f); }
+  public static void AddDirection(FlatBufferBuilder builder, protocol.MoveDirection direction) { builder.AddSbyte(1, (sbyte)direction, 0); }
   public static void AddMoveSpeed(FlatBufferBuilder builder, float moveSpeed) { builder.AddFloat(2, moveSpeed, 0.0f); }
-  public static void AddMoveStartTime(FlatBufferBuilder builder, float moveStartTime) { builder.AddFloat(3, moveStartTime, 0.0f); }
-  public static void AddDuration(FlatBufferBuilder builder, float duration) { builder.AddFloat(4, duration, 0.0f); }
+  public static void AddDuration(FlatBufferBuilder builder, float duration) { builder.AddFloat(3, duration, 0.0f); }
   public static Offset<protocol.REQUEST_PLAYERMOVE> EndREQUEST_PLAYERMOVE(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<protocol.REQUEST_PLAYERMOVE>(o);
@@ -362,10 +482,9 @@ static public class REQUEST_PLAYERMOVEVerify
   {
     return verifier.VerifyTableStart(tablePos)
       && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
-      && verifier.VerifyField(tablePos, 6 /*RotationX*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Direction*/, 1 /*protocol.MoveDirection*/, 1, false)
       && verifier.VerifyField(tablePos, 8 /*MoveSpeed*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 10 /*MoveStartTime*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 12 /*Duration*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*Duration*/, 4 /*float*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -423,28 +542,40 @@ public struct NOTICE_PLAYERPOSITION : IFlatbufferObject
   public ArraySegment<byte>? GetPlayerIdBytes() { return __p.__vector_as_arraysegment(4); }
 #endif
   public byte[] GetPlayerIdArray() { return __p.__vector_as_array<byte>(4); }
-  public float PositionX { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float PositionY { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float PositionZ { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public protocol.MoveDirection Direction { get { int o = __p.__offset(6); return o != 0 ? (protocol.MoveDirection)__p.bb.GetSbyte(o + __p.bb_pos) : protocol.MoveDirection.NONE; } }
+  public float MoveSpeed { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Duration { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float PositionX { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float PositionY { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float PositionZ { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
   public static Offset<protocol.NOTICE_PLAYERPOSITION> CreateNOTICE_PLAYERPOSITION(FlatBufferBuilder builder,
       StringOffset player_idOffset = default(StringOffset),
+      protocol.MoveDirection direction = protocol.MoveDirection.NONE,
+      float move_speed = 0.0f,
+      float duration = 0.0f,
       float position_x = 0.0f,
       float position_y = 0.0f,
       float position_z = 0.0f) {
-    builder.StartTable(4);
+    builder.StartTable(7);
     NOTICE_PLAYERPOSITION.AddPositionZ(builder, position_z);
     NOTICE_PLAYERPOSITION.AddPositionY(builder, position_y);
     NOTICE_PLAYERPOSITION.AddPositionX(builder, position_x);
+    NOTICE_PLAYERPOSITION.AddDuration(builder, duration);
+    NOTICE_PLAYERPOSITION.AddMoveSpeed(builder, move_speed);
     NOTICE_PLAYERPOSITION.AddPlayerId(builder, player_idOffset);
+    NOTICE_PLAYERPOSITION.AddDirection(builder, direction);
     return NOTICE_PLAYERPOSITION.EndNOTICE_PLAYERPOSITION(builder);
   }
 
-  public static void StartNOTICE_PLAYERPOSITION(FlatBufferBuilder builder) { builder.StartTable(4); }
+  public static void StartNOTICE_PLAYERPOSITION(FlatBufferBuilder builder) { builder.StartTable(7); }
   public static void AddPlayerId(FlatBufferBuilder builder, StringOffset playerIdOffset) { builder.AddOffset(0, playerIdOffset.Value, 0); }
-  public static void AddPositionX(FlatBufferBuilder builder, float positionX) { builder.AddFloat(1, positionX, 0.0f); }
-  public static void AddPositionY(FlatBufferBuilder builder, float positionY) { builder.AddFloat(2, positionY, 0.0f); }
-  public static void AddPositionZ(FlatBufferBuilder builder, float positionZ) { builder.AddFloat(3, positionZ, 0.0f); }
+  public static void AddDirection(FlatBufferBuilder builder, protocol.MoveDirection direction) { builder.AddSbyte(1, (sbyte)direction, 0); }
+  public static void AddMoveSpeed(FlatBufferBuilder builder, float moveSpeed) { builder.AddFloat(2, moveSpeed, 0.0f); }
+  public static void AddDuration(FlatBufferBuilder builder, float duration) { builder.AddFloat(3, duration, 0.0f); }
+  public static void AddPositionX(FlatBufferBuilder builder, float positionX) { builder.AddFloat(4, positionX, 0.0f); }
+  public static void AddPositionY(FlatBufferBuilder builder, float positionY) { builder.AddFloat(5, positionY, 0.0f); }
+  public static void AddPositionZ(FlatBufferBuilder builder, float positionZ) { builder.AddFloat(6, positionZ, 0.0f); }
   public static Offset<protocol.NOTICE_PLAYERPOSITION> EndNOTICE_PLAYERPOSITION(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<protocol.NOTICE_PLAYERPOSITION>(o);
@@ -458,9 +589,12 @@ static public class NOTICE_PLAYERPOSITIONVerify
   {
     return verifier.VerifyTableStart(tablePos)
       && verifier.VerifyString(tablePos, 4 /*PlayerId*/, false)
-      && verifier.VerifyField(tablePos, 6 /*PositionX*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 8 /*PositionY*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 10 /*PositionZ*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 6 /*Direction*/, 1 /*protocol.MoveDirection*/, 1, false)
+      && verifier.VerifyField(tablePos, 8 /*MoveSpeed*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 10 /*Duration*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 12 /*PositionX*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 14 /*PositionY*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 16 /*PositionZ*/, 4 /*float*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
@@ -483,6 +617,8 @@ public struct SERVER_PROTOCOL : IFlatbufferObject
   public protocol.RESPONSE_REGISTER ContentAsRESPONSE_REGISTER() { return Content<protocol.RESPONSE_REGISTER>().Value; }
   public protocol.REQUEST_HEARTBEAT ContentAsREQUEST_HEARTBEAT() { return Content<protocol.REQUEST_HEARTBEAT>().Value; }
   public protocol.RESPONSE_HEARTBEAT ContentAsRESPONSE_HEARTBEAT() { return Content<protocol.RESPONSE_HEARTBEAT>().Value; }
+  public protocol.NOTICE_ENTRANCE_STAGE ContentAsNOTICE_ENTRANCE_STAGE() { return Content<protocol.NOTICE_ENTRANCE_STAGE>().Value; }
+  public protocol.NOTICE_EXIT_STAGE ContentAsNOTICE_EXIT_STAGE() { return Content<protocol.NOTICE_EXIT_STAGE>().Value; }
   public protocol.REQUEST_PLAYERMOVE ContentAsREQUEST_PLAYERMOVE() { return Content<protocol.REQUEST_PLAYERMOVE>().Value; }
   public protocol.RESPONSE_PLAYERMOVE ContentAsRESPONSE_PLAYERMOVE() { return Content<protocol.RESPONSE_PLAYERMOVE>().Value; }
   public protocol.NOTICE_PLAYERPOSITION ContentAsNOTICE_PLAYERPOSITION() { return Content<protocol.NOTICE_PLAYERPOSITION>().Value; }

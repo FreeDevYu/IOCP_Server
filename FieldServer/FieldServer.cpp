@@ -64,15 +64,31 @@ namespace Field
 
 			if (!result) // 강제종료
 			{
-				_clientManager->RemoveClient(completionKey);
+				flatbuffers::FlatBufferBuilder builder;
+				builder.Finish(protocol::CreateINNER_CLOSE_CLIENT(builder, completionKey));
+
+				std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+					completionKey,
+					Network::MessageHeader(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_INNER_CLOSE_CLIENT),
+					(char*)builder.GetBufferPointer()
+				);
+
+				_messageQueue.push(messageData);
 				continue;
 			}
 
 			if (overlapped->OperationType == Network::OperationType::OP_RECV && bytesTransferred == 0) // 정상종료
 			{
-				//CloseClient(dwClient);
-				//m_pClientManager->ReleaseOperationData(pPerIoData);
-				_clientManager->RemoveClient(completionKey);
+				flatbuffers::FlatBufferBuilder builder;
+				builder.Finish(protocol::CreateINNER_CLOSE_CLIENT(builder, completionKey));
+
+				std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+					completionKey,
+					Network::MessageHeader(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_INNER_CLOSE_CLIENT),
+					(char*)builder.GetBufferPointer()
+				);
+
+				_messageQueue.push(messageData);
 				continue;
 			}
 
@@ -270,6 +286,8 @@ namespace Field
 			{
 				PlayerOnlineCheck(GetTickCount64());
 			}
+
+			UpdateUserList();
 		}
 
 		return NETWORK_OK;
@@ -312,9 +330,13 @@ namespace Field
 
 	int FieldServer::DisconnectClient(DWORD completionKey)
 	{
-		Network::NetworkBaseServer::DisconnectClient(completionKey);
-		
-		return 0;
+		int result = Network::NetworkBaseServer::DisconnectClient(completionKey);
+		if(result == NETWORK_ERROR)
+			return NETWORK_ERROR;
+		//이 코드는 단일쓰레드에서 동작하기 때문에 lock이 필요없음.
+		_playerMap.unsafe_erase(completionKey);
+
+		return NETWORK_OK;
 	}
 
 	void FieldServer::PlayerOnlineCheck(unsigned long long currentTime)
@@ -364,7 +386,6 @@ namespace Field
 	{
 		int size = _playerMap.size();
 
-
 		for (int i = 0;i < size; ++i)
 		{
 			auto it = _playerMap.begin();
@@ -396,6 +417,61 @@ namespace Field
 		}
 
 		DebugLog(Debug::DEBUG_LOG, "ProcessHeartBeat");
+	}
+
+	void FieldServer::UpdateUserList()
+	{
+		//신규유저가 2명이상일경우 신규유저들간에는 중복데이터 전송되는중. 클라이언트에서 중복ID는 무시하도록 처리.
+
+		DWORD newUserCompletionKey = 0;
+
+		while (_newUserQueue.try_pop(newUserCompletionKey))
+		{
+			auto it = _playerMap.find(newUserCompletionKey);
+			if (it == _playerMap.end())
+				continue;
+
+			Field::Player* newEntrancePlayer = it->second;
+
+			for (auto& [key, player] : _playerMap)
+			{
+				if (player == nullptr) continue;
+
+				// 기존 접속자에게 신규 접속자 정보를 전달한다.
+				if (player->GetCompletionKey() != newUserCompletionKey)
+				{
+					flatbuffers::FlatBufferBuilder builder;
+					auto playerIdOFffset = builder.CreateString(newEntrancePlayer->GetPlayerID());
+					builder.Finish(protocol::CreateNOTICE_ENTRANCE_STAGE(builder, playerIdOFffset,
+						newEntrancePlayer->_xPosition, newEntrancePlayer->_yPosition, newEntrancePlayer->_zPosition));
+
+					Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_NOTICE_ENTRANCE_STAGE);
+					std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+						player->GetCompletionKey(),
+						header,
+						(char*)builder.GetBufferPointer()
+					);
+
+					SendMessageToClient(player->GetCompletionKey(), messageData);
+					DebugLog(Debug::DEBUG_LOG, std::format("Send [NOTICE_ENTRANCE_STAGE] To Player {}.", player->GetPlayerID()));
+				}
+				
+				// 신규 접속자에게 기존 접속자 정보를 전달한다.
+				flatbuffers::FlatBufferBuilder builder;
+				auto playerIdOFffset = builder.CreateString(player->GetPlayerID());
+				builder.Finish(protocol::CreateNOTICE_ENTRANCE_STAGE(builder, playerIdOFffset,
+					player->_xPosition, player->_yPosition, player->_zPosition));
+
+				Network::MessageHeader header(builder.GetSize(), protocol::MESSAGETYPE::MESSAGETYPE_NOTICE_ENTRANCE_STAGE);
+				std::shared_ptr<Network::MessageData> messageData = std::make_shared<Network::MessageData>(
+					newEntrancePlayer->GetCompletionKey(),
+					header,
+					(char*)builder.GetBufferPointer()
+				);
+
+				SendMessageToClient(newEntrancePlayer->GetCompletionKey(), messageData);
+			}
+		}
 	}
 
 	void FieldServer::SetDebugLogCallback(std::function<void(const std::string&, const std::string&)> callback)

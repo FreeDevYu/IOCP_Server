@@ -426,7 +426,7 @@ namespace Network
 		socket = INVALID_SOCKET;
 
 		networkUser->Deinitialize();
-
+		_clientManager->RemoveClient(completionKey);
 		return NETWORK_OK;
 	}
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/thread/mutex.hpp>
-
+#include "pch.h"
 
 template<class LOCK>
 class LockWorker
@@ -25,3 +25,40 @@ public:
 
 
 typedef LockWorker<boost::mutex> DefaultLock;
+
+//windowsÇÃ·§Æû Àü¿ë
+class SRWLOCKWorker
+{
+public:
+	SRWLOCKWorker() { InitializeSRWLock(&_lock); }
+	~SRWLOCKWorker() {}
+
+protected:
+	SRWLOCK _lock;
+
+private:
+	SRWLOCKWorker(const SRWLOCKWorker& rhs);
+	SRWLOCKWorker& operator=(const SRWLOCKWorker& rhs);
+
+public:
+	void ReadLockOn() 
+	{
+		AcquireSRWLockShared(&_lock);
+	}
+
+	void ReadLockOff()
+	{
+		ReleaseSRWLockShared(&_lock);
+
+	}
+
+	void WriteLockOn() 
+	{ 
+		AcquireSRWLockExclusive(&_lock);
+	}
+
+	void WriteLockOff()
+	{
+		ReleaseSRWLockExclusive(&_lock);
+	}
+};

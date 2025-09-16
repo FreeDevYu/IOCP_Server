@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Google.FlatBuffers;
-using Network;
 using UnityEngine;
 
 public interface IMessageReadHandler
@@ -24,6 +20,9 @@ public class MessageReadModule
 
         _dicMessageHandler.Add(protocol.MESSAGETYPE.RESPONSE_REGISTER, new RESPONSE_REGISTER());
         _dicMessageHandler.Add(protocol.MESSAGETYPE.REQUEST_HEARTBEAT, new REQUEST_HEARTBEAT());
+        _dicMessageHandler.Add(protocol.MESSAGETYPE.NOTICE_ENTRANCE_STAGE, new NOTICE_ENTRANCE_STAGE());
+        _dicMessageHandler.Add(protocol.MESSAGETYPE.NOTICE_EXIT_STAGE, new NOTICE_EXIT_STAGE());
+        _dicMessageHandler.Add(protocol.MESSAGETYPE.NOTICE_PLAYERPOSITION, new NOTICE_PLAYERPOSITION());
     }
 
     public void Process(Network.MessageData messageData)
@@ -48,11 +47,37 @@ public class RESPONSE_REGISTER : IMessageReadHandler
         string playerID = message.PlayerId;
         bool feedback = message.Feedback;
 
-        gameManager.CreatePlayerCharacter(playerID);
+        gameManager.MyAccount.ResponseRegist(feedback);
+       
         Debug.Log($"RESPONSE_REGISTER: Feedback = {message.Feedback}");
     }
 }
 
+public class NOTICE_ENTRANCE_STAGE : IMessageReadHandler
+{
+    public void HandleMessage(GameManager gameManager, Network.MessageData messageData)
+    {
+        var message = protocol.NOTICE_ENTRANCE_STAGE.GetRootAsNOTICE_ENTRANCE_STAGE(messageData.Body);
+        string playerID = message.PlayerId;
+        float posX = message.PositionX;
+        float posY = message.PositionY;
+        float posZ = message.PositionZ;
+
+        gameManager.EnterStage(playerID, posX, posY, posZ);
+        Debug.Log($"NOTICE_ENTRANCE_STAGE: PlayerID = {playerID}");
+    }
+}
+
+public class NOTICE_EXIT_STAGE : IMessageReadHandler
+{
+    public void HandleMessage(GameManager gameManager, Network.MessageData messageData)
+    {
+        var message = protocol.NOTICE_EXIT_STAGE.GetRootAsNOTICE_EXIT_STAGE(messageData.Body);
+        string playerID = message.PlayerId;
+        gameManager.StageController.RemovePlayerCharacter(playerID);
+        Debug.Log($"NOTICE_EXIT_STAGE: PlayerID = {playerID}");
+    }
+}
 public class REQUEST_HEARTBEAT : IMessageReadHandler
 {
     public void HandleMessage(GameManager gameManager, Network.MessageData messageData)
@@ -61,11 +86,26 @@ public class REQUEST_HEARTBEAT : IMessageReadHandler
 
         string playerID = message.PlayerId;
 
-        Player targetPlayer = gameManager.FindPlayerByID(playerID);
-        if (targetPlayer == null)
-            return;
-
-        targetPlayer.ResponseHeartBeat();
+        gameManager.MyAccount.ResponseHeartBeat();
         Debug.Log($"REQUEST_HEARTBEAT");
+    }
+}
+
+public class NOTICE_PLAYERPOSITION : IMessageReadHandler
+{
+    public void HandleMessage(GameManager gameManager, Network.MessageData messageData)
+    {
+        var message = protocol.NOTICE_PLAYERPOSITION.GetRootAsNOTICE_PLAYERPOSITION(messageData.Body);
+        string playerID = message.PlayerId;
+        protocol.MoveDirection direction = message.Direction;
+        float speed = message.MoveSpeed;
+        float duration = message.Duration;
+
+        float posX = message.PositionX;
+        float posY = message.PositionY;
+        float posZ = message.PositionZ;
+
+        gameManager.StageController.UpdatePlayerPosition(direction, speed, duration, playerID, posX, posY, posZ);
+        Debug.Log($"NOTICE_PLAYERPOSITION: PlayerID = {playerID}, Position = ({posX}, {posY}, {posZ})");
     }
 }

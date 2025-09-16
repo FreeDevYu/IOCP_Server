@@ -12,10 +12,13 @@ RESPONSE_REGISTER = 3,
 REQUEST_HEARTBEAT = 4,
 RESPONSE_HEARTBEAT = 5,
 
-REQUEST_PLAYERMOVE = 100,
-RESPONSE_PLAYERMOVE =101,
+NOTICE_ENTRANCE_STAGE = 100,
+NOTICE_EXIT_STAGE = 101,
 
-NOTICE_PLAYERPOSITION = 102,
+REQUEST_PLAYERMOVE = 102,
+RESPONSE_PLAYERMOVE =103,
+
+NOTICE_PLAYERPOSITION = 104,
 
 END
 }
@@ -48,12 +51,36 @@ player_id : string;
 feedback : bool;
 }
 
+table NOTICE_ENTRANCE_STAGE
+{
+player_id : string;
+position_x : float;
+position_y : float;
+position_z : float;
+}
+
+table NOTICE_EXIT_STAGE
+{
+player_id : string;
+}
+
+enum MoveDirection : byte {
+    NONE = 0,
+    FORWARD = 1,
+    BACKWARD = 2,
+    LEFT = 3,
+    RIGHT = 4,
+    LEFT_FORWARD = 5,
+    RIGHT_FORWARD = 6,
+    LEFT_BACKWARD = 7,
+    RIGHT_BACKWARD = 8
+}
+
 table REQUEST_PLAYERMOVE
 {
 player_id : string;
-rotation_x : float;
+direction: MoveDirection;
 move_speed : float;
-move_start_time : float;
 duration : float;
 }
 
@@ -65,6 +92,9 @@ feedback : bool;
 table NOTICE_PLAYERPOSITION
 {
 player_id : string;
+direction: MoveDirection;
+move_speed : float;
+duration : float;
 position_x : float;
 position_y : float;
 position_z : float;
@@ -81,11 +111,13 @@ RESPONSE_REGISTER,
 REQUEST_HEARTBEAT,
 RESPONSE_HEARTBEAT,
 
+NOTICE_ENTRANCE_STAGE,
+NOTICE_EXIT_STAGE,
+
 REQUEST_PLAYERMOVE ,
 RESPONSE_PLAYERMOVE,
 
 NOTICE_PLAYERPOSITION
-
 }
 
 
